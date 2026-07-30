@@ -9,6 +9,7 @@ import { FeedPage } from './pages/FeedPage'
 import { GroupPage } from './pages/GroupPage'
 import { LandingPage } from './pages/LandingPage'
 import { LoginPage } from './pages/LoginPage'
+import { NewBlogPostPage } from './pages/NewBlogPostPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { PrivacyPage } from './pages/PrivacyPage'
 import { ProfilePage } from './pages/ProfilePage'
@@ -91,6 +92,14 @@ function App() {
           element={
             <ProtectedRoute roles={['admin']}>
               <AdminDashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/blog/new"
+          element={
+            <ProtectedRoute roles={['admin']}>
+              <NewBlogPostPage />
             </ProtectedRoute>
           }
         />

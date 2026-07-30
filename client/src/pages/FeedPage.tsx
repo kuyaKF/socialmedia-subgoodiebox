@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { createAnnouncementRequest, deleteAnnouncementRequest } from '../api/announcements.api'
-import { createBlogPostRequest, deleteBlogPostRequest } from '../api/blogPosts.api'
+import { deleteBlogPostRequest } from '../api/blogPosts.api'
 import { getFeedRequest } from '../api/feed.api'
 import { createGroupPostRequest, deleteGroupPostRequest } from '../api/groupPosts.api'
 import { RoleBadge } from '../components/RoleBadge'
 import { Composer } from '../components/feed/Composer'
 import { FeedCard } from '../components/feed/FeedCard'
-import { NewBlogPostModal } from '../components/feed/NewBlogPostModal'
 import { useAuth } from '../context/AuthContext'
 import type { FeedItem, GroupRef } from '../types/models'
 import { canEngageWithItem } from '../utils/engagement'
@@ -20,7 +20,6 @@ export function FeedPage() {
   const [hasMore, setHasMore] = useState(true)
   const [loading, setLoading] = useState(false)
   const [initialLoading, setInitialLoading] = useState(true)
-  const [showBlogModal, setShowBlogModal] = useState(false)
   const sentinelRef = useRef<HTMLDivElement>(null)
   // Synchronous re-entrancy guard: the mount effect and the IntersectionObserver's
   // fire-if-already-intersecting behavior can both trigger a load at nearly the same
@@ -105,12 +104,12 @@ export function FeedPage() {
                 await refreshFeed()
               }}
             />
-            <button
-              onClick={() => setShowBlogModal(true)}
-              className="text-sm font-medium text-slate-600 hover:text-slate-900"
+            <Link
+              to="/admin/blog/new"
+              className="inline-block text-sm font-medium text-slate-600 hover:text-slate-900"
             >
               + Write a blog post
-            </button>
+            </Link>
           </>
         )}
         {group && (
@@ -149,16 +148,6 @@ export function FeedPage() {
       )}
       {!hasMore && items.length > 0 && (
         <p className="py-4 text-center text-xs text-slate-300">You're all caught up.</p>
-      )}
-
-      {showBlogModal && (
-        <NewBlogPostModal
-          onClose={() => setShowBlogModal(false)}
-          onCreate={async (title, body) => {
-            await createBlogPostRequest(title, body)
-            await refreshFeed()
-          }}
-        />
       )}
     </div>
   )

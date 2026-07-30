@@ -26,4 +26,7 @@ export const env = {
   // Resend's shared test sender — works with no domain setup, good for local dev.
   // Swap to a verified sender on your own domain before going live.
   emailFrom: process.env.EMAIL_FROM || 'Haven Circle <onboarding@resend.dev>',
+  cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME,
+  cloudinaryApiKey: process.env.CLOUDINARY_API_KEY,
+  cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET,
 };

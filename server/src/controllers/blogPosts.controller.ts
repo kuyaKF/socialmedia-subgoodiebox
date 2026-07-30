@@ -3,6 +3,8 @@ import { HttpError } from '../middleware/errorHandler';
 import { BlogPost } from '../models/BlogPost';
 import { asyncHandler } from '../utils/asyncHandler';
 import { attachEngagement } from '../utils/engagement';
+import { validateAndSanitizeBlocks } from '../utils/blogBlocks';
+import { buildBlogExcerpt } from '../utils/blogExcerpt';
 
 const MAX_PAGE_SIZE = 50;
 
@@ -19,7 +21,12 @@ export const listBlogPosts = asyncHandler(async (req: Request, res: Response) =>
     BlogPost.countDocuments(),
   ]);
 
-  res.json({ posts, total, page, limit, totalPages: Math.max(1, Math.ceil(total / limit)) });
+  const withExcerpts = posts.map((post) => ({
+    ...post.toObject(),
+    excerpt: buildBlogExcerpt(post.blocks),
+  }));
+
+  res.json({ posts: withExcerpts, total, page, limit, totalPages: Math.max(1, Math.ceil(total / limit)) });
 });
 
 export const getBlogPost = asyncHandler(async (req: Request, res: Response) => {
@@ -44,11 +51,17 @@ export const getBlogPost = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const createBlogPost = asyncHandler(async (req: Request, res: Response) => {
-  const { title, body } = req.body as { title?: string; body?: string };
-  if (!title || !title.trim() || !body || !body.trim()) {
-    throw new HttpError(400, 'title and body are required');
+  const { title, blocks } = req.body as { title?: string; blocks?: unknown };
+  if (!title || !title.trim()) {
+    throw new HttpError(400, 'title is required');
   }
-  const post = await BlogPost.create({ author: req.user!.id, title: title.trim(), body: body.trim() });
+  const sanitizedBlocks = validateAndSanitizeBlocks(blocks);
+
+  const post = await BlogPost.create({
+    author: req.user!.id,
+    title: title.trim(),
+    blocks: sanitizedBlocks,
+  });
   const populated = await post.populate('author', 'name role');
   res.status(201).json({ post: populated });
 });

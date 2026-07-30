@@ -1,5 +1,5 @@
 import { apiClient } from './client'
-import type { BlogPostSummary, PaginatedBlogPosts } from '../types/models'
+import type { BlogBlock, BlogPostSummary, PaginatedBlogPosts } from '../types/models'
 
 export async function listBlogPostsRequest(params?: { page?: number; limit?: number }) {
   const { data } = await apiClient.get<PaginatedBlogPosts>('/blog-posts', { params })
@@ -11,8 +11,18 @@ export async function getBlogPostRequest(id: string) {
   return data.post
 }
 
-export async function createBlogPostRequest(title: string, body: string) {
-  await apiClient.post('/blog-posts', { title, body })
+export async function createBlogPostRequest(title: string, blocks: BlogBlock[]) {
+  const { data } = await apiClient.post<{ post: BlogPostSummary }>('/blog-posts', { title, blocks })
+  return data.post
+}
+
+export async function uploadBlogImageRequest(file: File): Promise<string> {
+  const formData = new FormData()
+  formData.append('image', file)
+  const { data } = await apiClient.post<{ url: string }>('/blog-posts/images', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+  return data.url
 }
 
 export async function deleteBlogPostRequest(id: string) {

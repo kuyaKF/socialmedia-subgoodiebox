@@ -70,7 +70,30 @@ export function BlogPostPage() {
         <span>&middot;</span>
         <span>{new Date(post.createdAt).toLocaleDateString()}</span>
       </div>
-      <p className="whitespace-pre-wrap text-base leading-relaxed text-slate-700">{post.body}</p>
+      {post.blocks.map((block, i) => {
+        if (block.type === 'heading') {
+          return (
+            <h2 key={i} className="mb-2 mt-6 text-xl font-semibold text-slate-900">
+              {block.text}
+            </h2>
+          )
+        }
+        if (block.type === 'paragraph') {
+          return (
+            <p key={i} className="mb-4 whitespace-pre-wrap text-base leading-relaxed text-slate-700">
+              {block.text}
+            </p>
+          )
+        }
+        return (
+          <figure key={i} className="my-6">
+            <img src={block.url} alt={block.caption ?? ''} className="w-full rounded-lg" />
+            {block.caption && (
+              <figcaption className="mt-2 text-center text-sm text-slate-400">{block.caption}</figcaption>
+            )}
+          </figure>
+        )
+      })}
 
       <div className="mt-8 flex items-center gap-4 border-t border-slate-100 pt-4 text-sm">
         {user ? (

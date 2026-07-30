@@ -115,10 +115,20 @@ export interface FeedComment {
   createdAt: string
 }
 
+export type BlogBlockType = 'heading' | 'paragraph' | 'image'
+
+export interface BlogBlock {
+  type: BlogBlockType
+  text?: string
+  url?: string
+  caption?: string
+}
+
 export interface BlogPostSummary {
   _id: string
   title: string
-  body: string
+  blocks: BlogBlock[]
+  excerpt?: string
   author: FeedAuthor
   createdAt: string
   likeCount?: number

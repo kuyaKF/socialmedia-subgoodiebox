@@ -6,6 +6,7 @@ import { FeedTargetType } from '../models/Like';
 import { User } from '../models/User';
 import { asyncHandler } from '../utils/asyncHandler';
 import { attachEngagement } from '../utils/engagement';
+import { buildBlogExcerpt } from '../utils/blogExcerpt';
 
 const AUTHOR_FIELDS = 'name role';
 const MAX_PAGE_SIZE = 50;
@@ -59,7 +60,7 @@ export const getFeed = asyncHandler(async (req: Request, res: Response) => {
     ...blogPosts.map((b) => ({
       _id: b._id,
       type: 'blog_post' as const,
-      body: b.body,
+      body: buildBlogExcerpt(b.blocks),
       title: b.title,
       author: b.author,
       createdAt: b.createdAt,

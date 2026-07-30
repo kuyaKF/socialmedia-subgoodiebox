@@ -3,10 +3,6 @@ import { Link } from 'react-router-dom'
 import { listBlogPostsRequest } from '../../api/blogPosts.api'
 import type { BlogPostSummary } from '../../types/models'
 
-function excerpt(body: string, length = 140): string {
-  return body.length > length ? body.slice(0, length).trimEnd() + '…' : body
-}
-
 export function BlogPreview() {
   const [posts, setPosts] = useState<BlogPostSummary[]>([])
 
@@ -42,7 +38,7 @@ export function BlogPreview() {
               {new Date(post.createdAt).toLocaleDateString()}
             </p>
             <h3 className="mb-1.5 font-semibold text-slate-900">{post.title}</h3>
-            <p className="text-sm text-slate-600">{excerpt(post.body)}</p>
+            <p className="text-sm text-slate-600">{post.excerpt}</p>
           </Link>
         ))}
       </div>

@@ -6,10 +6,6 @@ import type { BlogPostSummary } from '../types/models'
 
 const PAGE_SIZE = 10
 
-function excerpt(body: string, length = 200): string {
-  return body.length > length ? body.slice(0, length).trimEnd() + '…' : body
-}
-
 export function BlogListPage() {
   const [posts, setPosts] = useState<BlogPostSummary[]>([])
   const [page, setPage] = useState(1)
@@ -49,7 +45,7 @@ export function BlogListPage() {
               <span>{new Date(post.createdAt).toLocaleDateString()}</span>
             </div>
             <h2 className="mb-1.5 text-xl font-semibold text-slate-900">{post.title}</h2>
-            <p className="text-sm text-slate-600">{excerpt(post.body)}</p>
+            <p className="text-sm text-slate-600">{post.excerpt}</p>
           </Link>
         ))}
       </div>
