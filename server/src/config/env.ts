@@ -1,0 +1,29 @@
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+function required(name: string): string {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`Missing required env var: ${name}`);
+  }
+  return value;
+}
+
+export const env = {
+  port: parseInt(process.env.PORT || '4000', 10),
+  mongoUri: required('MONGO_URI'),
+  jwtSecret: required('JWT_SECRET'),
+  jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
+  clientUrl: process.env.CLIENT_URL || 'http://localhost:5173',
+  nodeEnv: process.env.NODE_ENV || 'development',
+  adminEmail: process.env.ADMIN_EMAIL,
+  adminPassword: process.env.ADMIN_PASSWORD,
+  adminName: process.env.ADMIN_NAME || 'Admin',
+  paymongoSecretKey: process.env.PAYMONGO_SECRET_KEY,
+  paymongoWebhookSecret: process.env.PAYMONGO_WEBHOOK_SECRET,
+  resendApiKey: process.env.RESEND_API_KEY,
+  // Resend's shared test sender — works with no domain setup, good for local dev.
+  // Swap to a verified sender on your own domain before going live.
+  emailFrom: process.env.EMAIL_FROM || 'Haven Circle <onboarding@resend.dev>',
+};
