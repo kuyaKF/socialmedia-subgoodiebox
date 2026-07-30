@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createBlogPostRequest } from '../api/blogPosts.api'
 import { BlockEditor } from '../components/blogEditor/BlockEditor'
+import { ThumbnailUploader } from '../components/blogEditor/ThumbnailUploader'
 import type { EditorBlock } from '../types/blogEditor'
 import { toBlogBlock } from '../types/blogEditor'
 
@@ -22,6 +23,7 @@ function validate(title: string, blocks: EditorBlock[]): string | null {
 export function NewBlogPostPage() {
   const navigate = useNavigate()
   const [title, setTitle] = useState('')
+  const [thumbnail, setThumbnail] = useState({ url: '', uploading: false })
   const [blocks, setBlocks] = useState<EditorBlock[]>([])
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -32,10 +34,18 @@ export function NewBlogPostPage() {
       setError(validationError)
       return
     }
+    if (thumbnail.uploading) {
+      setError('Wait for the thumbnail upload to finish.')
+      return
+    }
     setSubmitting(true)
     setError(null)
     try {
-      const post = await createBlogPostRequest(title.trim(), blocks.map(toBlogBlock))
+      const post = await createBlogPostRequest(
+        title.trim(),
+        blocks.map(toBlogBlock),
+        thumbnail.url || undefined
+      )
       navigate(`/blog/${post._id}`)
     } catch (err: unknown) {
       const message =
@@ -50,6 +60,12 @@ export function NewBlogPostPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
       <h1 className="mb-6 text-xl font-semibold text-slate-900">New blog post</h1>
+
+      <ThumbnailUploader
+        url={thumbnail.url}
+        uploading={thumbnail.uploading}
+        onChange={setThumbnail}
+      />
 
       <input
         value={title}

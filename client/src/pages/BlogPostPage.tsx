@@ -64,6 +64,13 @@ export function BlogPostPage() {
         &larr; Back to blog
       </Link>
       <h1 className="mb-3 text-3xl font-bold tracking-tight text-slate-900">{post.title}</h1>
+      {post.thumbnailUrl && (
+        <img
+          src={post.thumbnailUrl}
+          alt=""
+          className="mb-6 h-64 w-full rounded-lg object-cover sm:h-80"
+        />
+      )}
       <div className="mb-6 flex items-center gap-2 text-sm text-slate-400">
         <Avatar name={post.author.name} size={7} />
         <span>{post.author.name}</span>

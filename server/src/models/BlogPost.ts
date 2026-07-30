@@ -22,6 +22,7 @@ const blogBlockSchema = new Schema<IBlogBlock>(
 export interface IBlogPost extends Document {
   author: Types.ObjectId;
   title: string;
+  thumbnailUrl?: string;
   blocks: IBlogBlock[];
   createdAt: Date;
 }
@@ -30,6 +31,7 @@ const blogPostSchema = new Schema<IBlogPost>(
   {
     author: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     title: { type: String, required: true, trim: true },
+    thumbnailUrl: { type: String, trim: true },
     blocks: {
       type: [blogBlockSchema],
       required: true,

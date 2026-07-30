@@ -51,7 +51,11 @@ export const getBlogPost = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const createBlogPost = asyncHandler(async (req: Request, res: Response) => {
-  const { title, blocks } = req.body as { title?: string; blocks?: unknown };
+  const { title, blocks, thumbnailUrl } = req.body as {
+    title?: string;
+    blocks?: unknown;
+    thumbnailUrl?: string;
+  };
   if (!title || !title.trim()) {
     throw new HttpError(400, 'title is required');
   }
@@ -60,6 +64,7 @@ export const createBlogPost = asyncHandler(async (req: Request, res: Response) =
   const post = await BlogPost.create({
     author: req.user!.id,
     title: title.trim(),
+    thumbnailUrl: typeof thumbnailUrl === 'string' && thumbnailUrl.trim() ? thumbnailUrl.trim() : undefined,
     blocks: sanitizedBlocks,
   });
   const populated = await post.populate('author', 'name role');

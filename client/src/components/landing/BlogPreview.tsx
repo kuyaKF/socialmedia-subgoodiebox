@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { listBlogPostsRequest } from '../../api/blogPosts.api'
+import { BookIcon } from '../icons'
 import type { BlogPostSummary } from '../../types/models'
 
 export function BlogPreview() {
@@ -32,13 +33,22 @@ export function BlogPreview() {
           <Link
             key={post._id}
             to={`/blog/${post._id}`}
-            className="rounded-xl border border-slate-200 p-5 transition-shadow hover:shadow-md"
+            className="overflow-hidden rounded-xl border border-slate-200 transition-shadow hover:shadow-md"
           >
-            <p className="mb-2 text-xs text-slate-400">
-              {new Date(post.createdAt).toLocaleDateString()}
-            </p>
-            <h3 className="mb-1.5 font-semibold text-slate-900">{post.title}</h3>
-            <p className="text-sm text-slate-600">{post.excerpt}</p>
+            {post.thumbnailUrl ? (
+              <img src={post.thumbnailUrl} alt="" className="h-40 w-full object-cover" />
+            ) : (
+              <div className="flex h-40 w-full items-center justify-center bg-slate-100">
+                <BookIcon className="h-8 w-8 text-slate-300" />
+              </div>
+            )}
+            <div className="p-5">
+              <p className="mb-2 text-xs text-slate-400">
+                {new Date(post.createdAt).toLocaleDateString()}
+              </p>
+              <h3 className="mb-1.5 font-semibold text-slate-900">{post.title}</h3>
+              <p className="text-sm text-slate-600">{post.excerpt}</p>
+            </div>
           </Link>
         ))}
       </div>

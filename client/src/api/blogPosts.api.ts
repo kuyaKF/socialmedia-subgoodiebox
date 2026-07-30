@@ -11,8 +11,12 @@ export async function getBlogPostRequest(id: string) {
   return data.post
 }
 
-export async function createBlogPostRequest(title: string, blocks: BlogBlock[]) {
-  const { data } = await apiClient.post<{ post: BlogPostSummary }>('/blog-posts', { title, blocks })
+export async function createBlogPostRequest(title: string, blocks: BlogBlock[], thumbnailUrl?: string) {
+  const { data } = await apiClient.post<{ post: BlogPostSummary }>('/blog-posts', {
+    title,
+    blocks,
+    thumbnailUrl,
+  })
   return data.post
 }
 

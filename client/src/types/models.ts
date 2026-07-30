@@ -127,6 +127,7 @@ export interface BlogBlock {
 export interface BlogPostSummary {
   _id: string
   title: string
+  thumbnailUrl?: string
   blocks: BlogBlock[]
   excerpt?: string
   author: FeedAuthor

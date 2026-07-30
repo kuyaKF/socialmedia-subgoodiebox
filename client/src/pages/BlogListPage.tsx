@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { listBlogPostsRequest } from '../api/blogPosts.api'
 import { Avatar } from '../components/Avatar'
+import { BookIcon } from '../components/icons'
 import type { BlogPostSummary } from '../types/models'
 
 const PAGE_SIZE = 10
@@ -36,16 +37,29 @@ export function BlogListPage() {
           <Link
             key={post._id}
             to={`/blog/${post._id}`}
-            className="block rounded-xl border border-slate-200 p-5 shadow-sm transition-shadow hover:shadow-md"
+            className="flex flex-col gap-4 overflow-hidden rounded-xl border border-slate-200 shadow-sm transition-shadow hover:shadow-md sm:flex-row"
           >
-            <div className="mb-2 flex items-center gap-2 text-xs text-slate-400">
-              <Avatar name={post.author.name} size={7} />
-              <span>{post.author.name}</span>
-              <span>&middot;</span>
-              <span>{new Date(post.createdAt).toLocaleDateString()}</span>
+            {post.thumbnailUrl ? (
+              <img
+                src={post.thumbnailUrl}
+                alt=""
+                className="h-40 w-full shrink-0 object-cover sm:h-auto sm:w-48"
+              />
+            ) : (
+              <div className="flex h-40 w-full shrink-0 items-center justify-center bg-slate-100 sm:h-auto sm:w-48">
+                <BookIcon className="h-8 w-8 text-slate-300" />
+              </div>
+            )}
+            <div className="min-w-0 flex-1 p-5 sm:pl-0">
+              <div className="mb-2 flex items-center gap-2 text-xs text-slate-400">
+                <Avatar name={post.author.name} size={7} />
+                <span>{post.author.name}</span>
+                <span>&middot;</span>
+                <span>{new Date(post.createdAt).toLocaleDateString()}</span>
+              </div>
+              <h2 className="mb-1.5 text-xl font-semibold text-slate-900">{post.title}</h2>
+              <p className="text-sm text-slate-600">{post.excerpt}</p>
             </div>
-            <h2 className="mb-1.5 text-xl font-semibold text-slate-900">{post.title}</h2>
-            <p className="text-sm text-slate-600">{post.excerpt}</p>
           </Link>
         ))}
       </div>
