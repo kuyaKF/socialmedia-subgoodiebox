@@ -26,7 +26,13 @@ const ICONS: Record<FeedItem['type'], typeof MegaphoneIcon> = {
 
 function ContextLabel({ item, isAdmin }: { item: FeedItem; isAdmin: boolean }) {
   if (item.type === 'announcement') return <>Announcement</>
-  if (item.type === 'blog_post') return <>Blog post</>
+  if (item.type === 'blog_post') {
+    return (
+      <Link to={`/blog/${item._id}`} className="hover:underline">
+        Blog post
+      </Link>
+    )
+  }
 
   const groupName = item.group?.name ?? 'group'
   const publicSuffix = item.visibility === 'public' ? ' · Public' : ''
@@ -125,7 +131,17 @@ export function FeedCard({
         )}
       </div>
 
-      {item.title && <h3 className="mb-1.5 text-lg font-semibold text-slate-900">{item.title}</h3>}
+      {item.title && (
+        <h3 className="mb-1.5 text-lg font-semibold text-slate-900">
+          {item.type === 'blog_post' ? (
+            <Link to={`/blog/${item._id}`} className="hover:underline">
+              {item.title}
+            </Link>
+          ) : (
+            item.title
+          )}
+        </h3>
+      )}
       <p className="whitespace-pre-wrap text-sm text-slate-700">{item.body}</p>
 
       <div className="mt-4 flex items-center gap-4 border-t border-slate-100 pt-3 text-sm">
