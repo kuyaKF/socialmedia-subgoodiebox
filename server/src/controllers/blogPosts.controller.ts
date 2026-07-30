@@ -71,6 +71,32 @@ export const createBlogPost = asyncHandler(async (req: Request, res: Response) =
   res.status(201).json({ post: populated });
 });
 
+export const updateBlogPost = asyncHandler(async (req: Request, res: Response) => {
+  const { title, blocks, thumbnailUrl } = req.body as {
+    title?: string;
+    blocks?: unknown;
+    thumbnailUrl?: string;
+  };
+  if (!title || !title.trim()) {
+    throw new HttpError(400, 'title is required');
+  }
+  const sanitizedBlocks = validateAndSanitizeBlocks(blocks);
+
+  const post = await BlogPost.findById(req.params.id);
+  if (!post) {
+    throw new HttpError(404, 'Blog post not found');
+  }
+
+  post.title = title.trim();
+  post.blocks = sanitizedBlocks;
+  post.thumbnailUrl =
+    typeof thumbnailUrl === 'string' && thumbnailUrl.trim() ? thumbnailUrl.trim() : undefined;
+  await post.save();
+
+  const populated = await post.populate('author', 'name role');
+  res.json({ post: populated });
+});
+
 export const deleteBlogPost = asyncHandler(async (req: Request, res: Response) => {
   const post = await BlogPost.findById(req.params.id);
   if (!post) {

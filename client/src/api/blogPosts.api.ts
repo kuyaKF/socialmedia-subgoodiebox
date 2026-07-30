@@ -20,6 +20,20 @@ export async function createBlogPostRequest(title: string, blocks: BlogBlock[], 
   return data.post
 }
 
+export async function updateBlogPostRequest(
+  id: string,
+  title: string,
+  blocks: BlogBlock[],
+  thumbnailUrl?: string
+) {
+  const { data } = await apiClient.patch<{ post: BlogPostSummary }>(`/blog-posts/${id}`, {
+    title,
+    blocks,
+    thumbnailUrl,
+  })
+  return data.post
+}
+
 export async function uploadBlogImageRequest(file: File): Promise<string> {
   const formData = new FormData()
   formData.append('image', file)

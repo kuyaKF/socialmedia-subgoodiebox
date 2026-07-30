@@ -17,3 +17,9 @@ export function toBlogBlock(b: EditorBlock): BlogBlock {
   }
   return { type: b.type, text: b.text.trim() }
 }
+
+export function fromBlogBlock(b: BlogBlock): EditorBlock {
+  const id = crypto.randomUUID()
+  if (b.type === 'image') return { id, type: 'image', url: b.url ?? '', caption: b.caption ?? '' }
+  return { id, type: b.type, text: b.text ?? '' }
+}

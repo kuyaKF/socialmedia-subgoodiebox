@@ -4,12 +4,12 @@ import { Navbar } from './components/Navbar'
 import { AdminDashboardPage } from './pages/AdminDashboardPage'
 import { AdminGroupsPage } from './pages/AdminGroupsPage'
 import { BlogListPage } from './pages/BlogListPage'
+import { BlogPostEditorPage } from './pages/BlogPostEditorPage'
 import { BlogPostPage } from './pages/BlogPostPage'
 import { FeedPage } from './pages/FeedPage'
 import { GroupPage } from './pages/GroupPage'
 import { LandingPage } from './pages/LandingPage'
 import { LoginPage } from './pages/LoginPage'
-import { NewBlogPostPage } from './pages/NewBlogPostPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { PrivacyPage } from './pages/PrivacyPage'
 import { ProfilePage } from './pages/ProfilePage'
@@ -99,7 +99,15 @@ function App() {
           path="/admin/blog/new"
           element={
             <ProtectedRoute roles={['admin']}>
-              <NewBlogPostPage />
+              <BlogPostEditorPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/blog/:id/edit"
+          element={
+            <ProtectedRoute roles={['admin']}>
+              <BlogPostEditorPage />
             </ProtectedRoute>
           }
         />

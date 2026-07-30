@@ -60,9 +60,19 @@ export function BlogPostPage() {
 
   return (
     <article className="mx-auto max-w-2xl px-4 py-12">
-      <Link to="/blog" className="mb-6 inline-block text-sm text-slate-500 hover:text-slate-700">
-        &larr; Back to blog
-      </Link>
+      <div className="mb-6 flex items-center justify-between">
+        <Link to="/blog" className="inline-block text-sm text-slate-500 hover:text-slate-700">
+          &larr; Back to blog
+        </Link>
+        {user?.role === 'admin' && (
+          <Link
+            to={`/admin/blog/${post._id}/edit`}
+            className="text-sm font-medium text-slate-600 hover:text-slate-900"
+          >
+            Edit post
+          </Link>
+        )}
+      </div>
       <h1 className="mb-3 text-3xl font-bold tracking-tight text-slate-900">{post.title}</h1>
       {post.thumbnailUrl && (
         <img

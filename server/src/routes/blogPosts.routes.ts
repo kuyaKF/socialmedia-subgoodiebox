@@ -4,6 +4,7 @@ import {
   deleteBlogPost,
   getBlogPost,
   listBlogPosts,
+  updateBlogPost,
 } from '../controllers/blogPosts.controller';
 import { uploadBlogImage } from '../controllers/blogImages.controller';
 import { optionalAuth, requireAuth } from '../middleware/auth';
@@ -16,6 +17,7 @@ router.get('/', listBlogPosts);
 router.get('/:id', optionalAuth, getBlogPost);
 router.post('/', requireAuth, requireRole('admin'), createBlogPost);
 router.post('/images', requireAuth, requireRole('admin'), upload.single('image'), uploadBlogImage);
+router.patch('/:id', requireAuth, requireRole('admin'), updateBlogPost);
 router.delete('/:id', requireAuth, requireRole('admin'), deleteBlogPost);
 
 export default router;
