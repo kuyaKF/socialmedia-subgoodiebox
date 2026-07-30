@@ -131,6 +131,7 @@ export function FeedPage() {
             item={item}
             canDelete={user.role === 'admin' || item.author._id === user.id}
             canEngage={canEngageWithItem(user, item)}
+            isAdmin={user.role === 'admin'}
             onDelete={() => handleDelete(item)}
           />
         ))}

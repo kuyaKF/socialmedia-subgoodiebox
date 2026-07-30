@@ -18,28 +18,48 @@ function timeAgo(iso: string): string {
   return new Date(iso).toLocaleDateString()
 }
 
-const CONTEXT: Record<
-  FeedItem['type'],
-  { icon: typeof MegaphoneIcon; label: (item: FeedItem) => string }
-> = {
-  announcement: { icon: MegaphoneIcon, label: () => 'Announcement' },
-  blog_post: { icon: BookIcon, label: () => 'Blog post' },
-  group_post: {
-    icon: UsersIcon,
-    label: (item) =>
-      `Posted in ${item.group?.name ?? 'group'}${item.visibility === 'public' ? ' · Public' : ''}`,
-  },
+const ICONS: Record<FeedItem['type'], typeof MegaphoneIcon> = {
+  announcement: MegaphoneIcon,
+  blog_post: BookIcon,
+  group_post: UsersIcon,
+}
+
+function ContextLabel({ item, isAdmin }: { item: FeedItem; isAdmin: boolean }) {
+  if (item.type === 'announcement') return <>Announcement</>
+  if (item.type === 'blog_post') return <>Blog post</>
+
+  const groupName = item.group?.name ?? 'group'
+  const publicSuffix = item.visibility === 'public' ? ' · Public' : ''
+  if (isAdmin && item.group) {
+    return (
+      <>
+        Posted in{' '}
+        <Link to={`/admin/groups/${item.group._id}/feed`} className="font-medium hover:underline">
+          {groupName}
+        </Link>
+        {publicSuffix}
+      </>
+    )
+  }
+  return (
+    <>
+      Posted in {groupName}
+      {publicSuffix}
+    </>
+  )
 }
 
 export function FeedCard({
   item,
   canDelete,
   canEngage,
+  isAdmin,
   onDelete,
 }: {
   item: FeedItem
   canDelete: boolean
   canEngage: boolean
+  isAdmin?: boolean
   onDelete: () => void
 }) {
   const [showComments, setShowComments] = useState(false)
@@ -59,7 +79,7 @@ export function FeedCard({
     likedByMe: item.likedByMe,
   })
 
-  const { icon: ContextIcon, label } = CONTEXT[item.type]
+  const ContextIcon = ICONS[item.type]
 
   async function handleToggleComments() {
     const next = !showComments
@@ -90,7 +110,7 @@ export function FeedCard({
             </div>
             <p className="flex items-center gap-1 text-xs text-slate-400">
               <ContextIcon className="h-3.5 w-3.5" />
-              {label(item)} &middot; {timeAgo(item.createdAt)}
+              <ContextLabel item={item} isAdmin={Boolean(isAdmin)} /> &middot; {timeAgo(item.createdAt)}
             </p>
           </div>
         </div>
