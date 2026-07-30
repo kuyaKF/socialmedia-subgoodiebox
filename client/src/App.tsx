@@ -88,6 +88,14 @@ function App() {
           }
         />
         <Route
+          path="/admin/groups/:groupId/feed"
+          element={
+            <ProtectedRoute roles={['admin']}>
+              <GroupPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/admin/dashboard"
           element={
             <ProtectedRoute roles={['admin']}>

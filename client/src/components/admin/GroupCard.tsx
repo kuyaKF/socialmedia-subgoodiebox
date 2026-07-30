@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { Link } from 'react-router-dom'
 import { Avatar } from '../Avatar'
 import { CheckIcon, PencilIcon, TrashIcon, XIcon } from '../icons'
 import { SearchableSelect } from '../SearchableSelect'
@@ -118,13 +119,21 @@ export function GroupCard({
             </div>
           )}
         </div>
-        <button
-          onClick={() => onDelete(group._id)}
-          title="Delete group"
-          className="shrink-0 rounded p-1.5 text-slate-300 hover:bg-red-50 hover:text-red-600"
-        >
-          <TrashIcon className="h-4 w-4" />
-        </button>
+        <div className="flex shrink-0 items-center gap-1">
+          <Link
+            to={`/admin/groups/${group._id}/feed`}
+            className="rounded px-2 py-1 text-xs font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+          >
+            View feed
+          </Link>
+          <button
+            onClick={() => onDelete(group._id)}
+            title="Delete group"
+            className="shrink-0 rounded p-1.5 text-slate-300 hover:bg-red-50 hover:text-red-600"
+          >
+            <TrashIcon className="h-4 w-4" />
+          </button>
+        </div>
       </div>
 
       <div className="mb-4">

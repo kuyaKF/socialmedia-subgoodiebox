@@ -27,14 +27,15 @@ export const createGroupPost = asyncHandler(async (req: Request, res: Response) 
   if (!group) {
     throw new HttpError(404, 'Group not found');
   }
-  if (!isGroupMember(group, req.user!.id)) {
+  const isAdmin = req.user!.role === 'admin';
+  if (!isAdmin && !isGroupMember(group, req.user!.id)) {
     throw new HttpError(403, "Only this group's members can post to it");
   }
 
-  // Only the group's leader can opt a post to be public (visible feed-wide); everyone else's
-  // posts stay private to the circle regardless of what's sent.
+  // The group's leader and admins (who can oversee any circle) can opt a post to be public
+  // (visible feed-wide); everyone else's posts stay private to the circle regardless of what's sent.
   const isLeader = !!group.leader && String(group.leader) === req.user!.id;
-  const resolvedVisibility = isLeader && visibility === 'public' ? 'public' : 'private';
+  const resolvedVisibility = (isLeader || isAdmin) && visibility === 'public' ? 'public' : 'private';
 
   const post = await GroupPost.create({
     group: group.id,
@@ -60,6 +61,36 @@ export const getMyGroupFeed = asyncHandler(async (req: Request, res: Response) =
   }
 
   const filter: Record<string, unknown> = { group: currentUser.group };
+  if (before) filter.createdAt = { $lt: before };
+
+  const posts = await GroupPost.find(filter)
+    .sort({ createdAt: -1 })
+    .limit(limit)
+    .populate('author', 'name role')
+    .populate('group', 'name');
+
+  const page = posts.map((p) => ({
+    _id: p._id,
+    type: 'group_post' as const,
+    body: p.body,
+    author: p.author,
+    group: p.group,
+    visibility: p.visibility,
+    createdAt: p.createdAt,
+  }));
+
+  const items = await attachEngagement(page, req.user!.id);
+  const nextCursor = items.length === limit ? items[items.length - 1].createdAt : null;
+
+  res.json({ items, nextCursor });
+});
+
+// Admin-only: view any group's feed regardless of membership, for oversight/moderation.
+export const getGroupFeed = asyncHandler(async (req: Request, res: Response) => {
+  const before = req.query.before ? new Date(req.query.before as string) : null;
+  const limit = Math.min(MAX_PAGE_SIZE, Math.max(1, parseInt(req.query.limit as string, 10) || 10));
+
+  const filter: Record<string, unknown> = { group: req.params.groupId };
   if (before) filter.createdAt = { $lt: before };
 
   const posts = await GroupPost.find(filter)

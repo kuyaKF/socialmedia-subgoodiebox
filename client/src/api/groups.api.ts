@@ -11,6 +11,11 @@ export async function getMyGroupRequest() {
   return data.group
 }
 
+export async function getGroupRequest(id: string) {
+  const { data } = await apiClient.get<{ group: Group }>(`/groups/${id}`)
+  return data.group
+}
+
 export async function createGroupRequest(input: { name: string; leaderId?: string }) {
   const { data } = await apiClient.post<{ group: Group }>('/groups', input)
   return data.group

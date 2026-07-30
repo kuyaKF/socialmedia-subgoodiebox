@@ -17,3 +17,12 @@ export async function getMyGroupFeedRequest(params?: { before?: string; limit?: 
   const { data } = await apiClient.get<FeedResponse>('/group-posts', { params })
   return data
 }
+
+// Admin-only: view any group's feed regardless of membership.
+export async function getGroupFeedRequest(
+  groupId: string,
+  params?: { before?: string; limit?: number }
+) {
+  const { data } = await apiClient.get<FeedResponse>(`/group-posts/${groupId}`, { params })
+  return data
+}

@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { getMyGroupRequest } from '../api/groups.api'
-import { createGroupPostRequest, deleteGroupPostRequest, getMyGroupFeedRequest } from '../api/groupPosts.api'
+import { Link, useParams } from 'react-router-dom'
+import { getGroupRequest, getMyGroupRequest } from '../api/groups.api'
+import {
+  createGroupPostRequest,
+  deleteGroupPostRequest,
+  getGroupFeedRequest,
+  getMyGroupFeedRequest,
+} from '../api/groupPosts.api'
 import { Avatar } from '../components/Avatar'
 import { Composer } from '../components/feed/Composer'
 import { FeedCard } from '../components/feed/FeedCard'
@@ -13,9 +18,13 @@ const PAGE_SIZE = 10
 
 export function GroupPage() {
   const { user } = useAuth()
+  const { groupId: routeGroupId } = useParams<{ groupId: string }>()
+  const isAdminView = Boolean(routeGroupId)
+
   const [group, setGroup] = useState<Group | null>(null)
   const [groupLoading, setGroupLoading] = useState(true)
   const [notAssigned, setNotAssigned] = useState(false)
+  const [notFound, setNotFound] = useState(false)
 
   const [items, setItems] = useState<FeedItem[]>([])
   const [cursor, setCursor] = useState<string | null>(null)
@@ -26,11 +35,13 @@ export function GroupPage() {
   const loadingRef = useRef(false)
 
   useEffect(() => {
-    getMyGroupRequest()
+    setGroupLoading(true)
+    const request = routeGroupId ? getGroupRequest(routeGroupId) : getMyGroupRequest()
+    request
       .then(setGroup)
-      .catch(() => setNotAssigned(true))
+      .catch(() => (routeGroupId ? setNotFound(true) : setNotAssigned(true)))
       .finally(() => setGroupLoading(false))
-  }, [])
+  }, [routeGroupId])
 
   const loadMore = useCallback(
     async (reset = false) => {
@@ -38,10 +49,10 @@ export function GroupPage() {
       loadingRef.current = true
       setLoading(true)
       try {
-        const result = await getMyGroupFeedRequest({
-          before: reset ? undefined : (cursor ?? undefined),
-          limit: PAGE_SIZE,
-        })
+        const params = { before: reset ? undefined : (cursor ?? undefined), limit: PAGE_SIZE }
+        const result = routeGroupId
+          ? await getGroupFeedRequest(routeGroupId, params)
+          : await getMyGroupFeedRequest(params)
         setItems((prev) => (reset ? result.items : [...prev, ...result.items]))
         setCursor(result.nextCursor)
         setHasMore(result.nextCursor !== null)
@@ -51,7 +62,7 @@ export function GroupPage() {
         loadingRef.current = false
       }
     },
-    [cursor]
+    [cursor, routeGroupId]
   )
 
   useEffect(() => {
@@ -86,6 +97,18 @@ export function GroupPage() {
 
   if (!user) return null
   if (groupLoading) return <div className="mt-10 text-center text-slate-500">Loading...</div>
+
+  if (notFound) {
+    return (
+      <div className="mx-auto mt-16 max-w-md px-4 text-center">
+        <h1 className="mb-2 text-xl font-semibold text-slate-900">Group not found</h1>
+        <Link to="/admin/groups" className="text-sm font-medium text-slate-900 underline">
+          Back to Manage Groups
+        </Link>
+      </div>
+    )
+  }
+
   if (notAssigned || !group) {
     return (
       <div className="mx-auto mt-16 max-w-md px-4 text-center">
@@ -99,9 +122,15 @@ export function GroupPage() {
   }
 
   const isLeader = group.leader?._id === user.id
+  const canChooseVisibility = isLeader || user.role === 'admin'
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
+      {isAdminView && (
+        <p className="mb-3 inline-block rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-800">
+          Viewing as admin
+        </p>
+      )}
       <h1 className="mb-1 text-xl font-semibold text-slate-900">{group.name}</h1>
       <p className="mb-4 text-sm text-slate-500">A private space for this circle's members.</p>
 
@@ -132,7 +161,7 @@ export function GroupPage() {
         <Composer
           placeholder={`Post something to ${group.name}...`}
           submitLabel={`Post to ${group.name}`}
-          showVisibilityToggle={isLeader}
+          showVisibilityToggle={canChooseVisibility}
           onSubmit={async (body, visibility?: GroupPostVisibility) => {
             await createGroupPostRequest(group._id, body, visibility)
             await refreshFeed()
