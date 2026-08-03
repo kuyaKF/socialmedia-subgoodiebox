@@ -38,6 +38,8 @@ export function AdminGroupsPage() {
   }, [])
 
   const leaderCandidates = unassignedUsers.filter((u) => u.role === 'internal' || u.role === 'admin')
+  // Groups are now paid "circle" membership — only paying subscribers should be addable as members.
+  const paidUnassignedUsers = unassignedUsers.filter((u) => u.subscription.plan !== 'free')
 
   async function refreshAfterChange() {
     await loadSharedData()
@@ -89,7 +91,7 @@ export function AdminGroupsPage() {
         <h2 className="mb-2 text-sm font-medium text-slate-500">Groups</h2>
         <GroupsBrowser
           leaderCandidates={leaderCandidates}
-          unassignedUsers={unassignedUsers}
+          unassignedUsers={paidUnassignedUsers}
           refreshTick={groupsRefreshTick}
           onCreate={handleCreate}
           onSetLeader={handleSetLeader}

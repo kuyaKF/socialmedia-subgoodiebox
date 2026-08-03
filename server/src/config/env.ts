@@ -22,6 +22,7 @@ export const env = {
   adminName: process.env.ADMIN_NAME || 'Admin',
   paymongoSecretKey: process.env.PAYMONGO_SECRET_KEY,
   paymongoWebhookSecret: process.env.PAYMONGO_WEBHOOK_SECRET,
+  paymongoGoodieBoxWebhookSecret: process.env.PAYMONGO_GOODIE_BOX_WEBHOOK_SECRET,
   resendApiKey: process.env.RESEND_API_KEY,
   // Resend's shared test sender — works with no domain setup, good for local dev.
   // Swap to a verified sender on your own domain before going live.

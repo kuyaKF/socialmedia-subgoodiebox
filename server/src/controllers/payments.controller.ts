@@ -73,7 +73,7 @@ export const handleWebhook = asyncHandler(async (req: Request, res: Response) =>
 
   let event;
   try {
-    event = verifyWebhookSignature(rawBody, signatureHeader);
+    event = verifyWebhookSignature(rawBody, signatureHeader, env.paymongoWebhookSecret);
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Invalid signature';
     throw new HttpError(400, message);

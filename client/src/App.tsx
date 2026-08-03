@@ -2,11 +2,13 @@ import { Route, Routes } from 'react-router-dom'
 import { EmailVerificationBanner } from './components/EmailVerificationBanner'
 import { Navbar } from './components/Navbar'
 import { AdminDashboardPage } from './pages/AdminDashboardPage'
+import { AdminGoodieBoxOrdersPage } from './pages/AdminGoodieBoxOrdersPage'
 import { AdminGroupsPage } from './pages/AdminGroupsPage'
 import { BlogListPage } from './pages/BlogListPage'
 import { BlogPostEditorPage } from './pages/BlogPostEditorPage'
 import { BlogPostPage } from './pages/BlogPostPage'
 import { FeedPage } from './pages/FeedPage'
+import { GoodieBoxPage } from './pages/GoodieBoxPage'
 import { GroupPage } from './pages/GroupPage'
 import { LandingPage } from './pages/LandingPage'
 import { LoginPage } from './pages/LoginPage'
@@ -30,6 +32,7 @@ function App() {
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/blog" element={<BlogListPage />} />
         <Route path="/blog/:id" element={<BlogPostPage />} />
+        <Route path="/goodie-box" element={<GoodieBoxPage />} />
         <Route path="/verify-email" element={<VerifyEmailPage />} />
         <Route
           path="/login"
@@ -100,6 +103,14 @@ function App() {
           element={
             <ProtectedRoute roles={['admin']}>
               <AdminDashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/goodie-box-orders"
+          element={
+            <ProtectedRoute roles={['admin']}>
+              <AdminGoodieBoxOrdersPage />
             </ProtectedRoute>
           }
         />

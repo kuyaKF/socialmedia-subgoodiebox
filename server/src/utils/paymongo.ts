@@ -105,9 +105,13 @@ export interface PayMongoEvent {
 // Verification algorithm matches PayMongo's official Node SDK exactly:
 // header is "t=<timestamp>,te=<test_signature>,li=<live_signature>"; the signed string is
 // `${timestamp}.${rawBody}`, HMAC-SHA256'd with the webhook secret.
-export function verifyWebhookSignature(rawBody: string, signatureHeader: string): PayMongoEvent {
-  if (!env.paymongoWebhookSecret) {
-    throw new Error('PAYMONGO_WEBHOOK_SECRET is not configured');
+export function verifyWebhookSignature(
+  rawBody: string,
+  signatureHeader: string,
+  secret: string | undefined
+): PayMongoEvent {
+  if (!secret) {
+    throw new Error('Webhook secret is not configured');
   }
 
   const parts = signatureHeader.split(',');
@@ -125,7 +129,7 @@ export function verifyWebhookSignature(rawBody: string, signatureHeader: string)
   }
 
   const expected = crypto
-    .createHmac('sha256', env.paymongoWebhookSecret)
+    .createHmac('sha256', secret)
     .update(`${timestamp}.${rawBody}`)
     .digest('hex');
 
