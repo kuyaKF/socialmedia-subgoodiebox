@@ -13,9 +13,23 @@ export async function getUserRequest(id: string) {
   return data.user
 }
 
-export async function updateMeRequest(input: { name?: string; bio?: string; avatarUrl?: string }) {
+export async function updateMeRequest(input: {
+  name?: string
+  bio?: string
+  avatarUrl?: string
+  slug?: string
+}) {
   const { data } = await apiClient.patch<{ user: User }>('/users/me', input)
   return data.user
+}
+
+export async function uploadAvatarRequest(file: File): Promise<string> {
+  const formData = new FormData()
+  formData.append('image', file)
+  const { data } = await apiClient.post<{ url: string }>('/users/me/avatar', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+  return data.url
 }
 
 export async function updateUserRoleRequest(id: string, role: UserRole) {

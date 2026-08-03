@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { listUsersRequest } from '../../api/users.api'
 import type {
   Group,
@@ -212,7 +213,11 @@ export function UsersBrowser({
               const group = typeof u.group === 'object' ? (u.group as GroupRef | null) : null
               return (
                 <tr key={u.id}>
-                  <td className="px-3 py-2 font-medium text-slate-900">{u.name}</td>
+                  <td className="px-3 py-2 font-medium text-slate-900">
+                    <Link to={`/profile/${u.id}`} className="hover:underline">
+                      {u.name}
+                    </Link>
+                  </td>
                   <td className="px-3 py-2 text-slate-600">{u.email}</td>
                   <td className="px-3 py-2 text-slate-600">
                     {new Date(u.createdAt).toLocaleDateString()}

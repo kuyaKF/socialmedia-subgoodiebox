@@ -1,9 +1,20 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useParams } from 'react-router-dom'
-import { changeMyPasswordRequest, getUserRequest, updateMeRequest } from '../api/users.api'
+import {
+  changeMyPasswordRequest,
+  getUserRequest,
+  updateMeRequest,
+  uploadAvatarRequest,
+} from '../api/users.api'
+import { Avatar } from '../components/Avatar'
 import { RoleBadge } from '../components/RoleBadge'
 import { useAuth } from '../context/AuthContext'
 import type { GroupRef, User } from '../types/models'
+
+function extractErrorMessage(err: unknown, fallback: string): string {
+  const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
+  return message || fallback
+}
 
 export function ProfilePage() {
   const { id } = useParams<{ id: string }>()
@@ -12,7 +23,14 @@ export function ProfilePage() {
   const [editing, setEditing] = useState(false)
   const [name, setName] = useState('')
   const [bio, setBio] = useState('')
+  const [slug, setSlug] = useState('')
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(true)
+
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  const [imageError, setImageError] = useState<string | null>(null)
+  const avatarInputRef = useRef<HTMLInputElement>(null)
 
   const [changingPassword, setChangingPassword] = useState(false)
   const [currentPassword, setCurrentPassword] = useState('')
@@ -22,7 +40,7 @@ export function ProfilePage() {
   const [passwordSuccess, setPasswordSuccess] = useState(false)
   const [savingPassword, setSavingPassword] = useState(false)
 
-  const isSelf = currentUser?.id === id
+  const isSelf = !!profile && currentUser?.id === profile.id
 
   useEffect(() => {
     if (!id) return
@@ -32,16 +50,43 @@ export function ProfilePage() {
         setProfile(u)
         setName(u.name)
         setBio(u.bio || '')
+        setSlug(u.slug || '')
       })
       .finally(() => setLoading(false))
   }, [id])
 
   async function handleSave(e: FormEvent) {
     e.preventDefault()
-    const updated = await updateMeRequest({ name, bio })
-    setProfile(updated)
-    setEditing(false)
-    await refreshMe()
+    setSaveError(null)
+    setSaving(true)
+    try {
+      const updated = await updateMeRequest({ name, bio, slug })
+      setProfile(updated)
+      setEditing(false)
+      await refreshMe()
+    } catch (err) {
+      setSaveError(extractErrorMessage(err, 'Could not save profile'))
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  async function handleAvatarSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    setImageError(null)
+    setUploadingAvatar(true)
+    try {
+      const url = await uploadAvatarRequest(file)
+      const updated = await updateMeRequest({ avatarUrl: url })
+      setProfile(updated)
+      await refreshMe()
+    } catch (err) {
+      setImageError(extractErrorMessage(err, 'Could not upload profile picture'))
+    } finally {
+      setUploadingAvatar(false)
+    }
   }
 
   async function handleChangePassword(e: FormEvent) {
@@ -60,10 +105,7 @@ export function ProfilePage() {
       setConfirmPassword('')
       setChangingPassword(false)
     } catch (err: unknown) {
-      const message =
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-        'Could not change password'
-      setPasswordError(message)
+      setPasswordError(extractErrorMessage(err, 'Could not change password'))
     } finally {
       setSavingPassword(false)
     }
@@ -76,10 +118,37 @@ export function ProfilePage() {
 
   return (
     <div className="mx-auto mt-10 max-w-xl px-4">
-      <div className="mb-4 flex items-center gap-3">
-        <h1 className="text-2xl font-semibold text-slate-900">{profile.name}</h1>
-        <RoleBadge role={profile.role} />
+      <div className="relative mb-4 flex items-center gap-3">
+        <div className="relative">
+          <Avatar name={profile.name} avatarUrl={profile.avatarUrl} size={20} />
+          {isSelf && (
+            <button
+              onClick={() => avatarInputRef.current?.click()}
+              disabled={uploadingAvatar}
+              title="Change profile picture"
+              className="absolute -bottom-1 -right-1 rounded-full border border-slate-300 bg-white px-1.5 py-1 text-xs shadow-sm hover:bg-slate-50 disabled:opacity-50"
+            >
+              {uploadingAvatar ? '...' : '✎'}
+            </button>
+          )}
+          <input
+            ref={avatarInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleAvatarSelect}
+          />
+        </div>
+        <div>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-semibold text-slate-900">{profile.name}</h1>
+            <RoleBadge role={profile.role} />
+          </div>
+          {profile.slug && <p className="text-sm text-slate-400">/profile/{profile.slug}</p>}
+        </div>
       </div>
+
+      {imageError && <p className="mb-4 text-sm text-red-600">{imageError}</p>}
 
       {editing ? (
         <form onSubmit={handleSave} className="space-y-3">
@@ -100,13 +169,40 @@ export function ProfilePage() {
               rows={3}
             />
           </div>
+          <div>
+            <label className="mb-1 block text-sm text-slate-600">Profile URL</label>
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm text-slate-400">/profile/</span>
+              <input
+                value={slug}
+                onChange={(e) => setSlug(e.target.value)}
+                placeholder="your-name"
+                className="w-full rounded border border-slate-300 px-3 py-2"
+              />
+            </div>
+            <p className="mt-1 text-xs text-slate-400">
+              3-30 characters: lowercase letters, numbers, and hyphens only. Leave blank to remove
+              your custom URL — your profile stays reachable at /profile/{profile.id} either way.
+            </p>
+          </div>
+          {saveError && <p className="text-sm text-red-600">{saveError}</p>}
           <div className="flex gap-2">
-            <button type="submit" className="rounded bg-slate-900 px-3 py-1.5 text-white">
-              Save
+            <button
+              type="submit"
+              disabled={saving}
+              className="rounded bg-slate-900 px-3 py-1.5 text-white disabled:opacity-50"
+            >
+              {saving ? 'Saving...' : 'Save'}
             </button>
             <button
               type="button"
-              onClick={() => setEditing(false)}
+              onClick={() => {
+                setEditing(false)
+                setSaveError(null)
+                setName(profile.name)
+                setBio(profile.bio || '')
+                setSlug(profile.slug || '')
+              }}
               className="rounded border border-slate-300 px-3 py-1.5 text-slate-700"
             >
               Cancel

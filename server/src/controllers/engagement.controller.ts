@@ -80,7 +80,7 @@ export const listComments = asyncHandler(async (req: Request, res: Response) => 
   assertValidTarget(targetType, targetId);
   const comments = await Comment.find({ targetType, targetId })
     .sort({ createdAt: 1 })
-    .populate('author', 'name role');
+    .populate('author', 'name role avatarUrl');
   res.json({ comments });
 });
 
@@ -96,6 +96,6 @@ export const createComment = asyncHandler(async (req: Request, res: Response) =>
     throw new HttpError(400, 'body is required');
   }
   const comment = await Comment.create({ targetType, targetId, author: req.user!.id, body: body.trim() });
-  const populated = await comment.populate('author', 'name role');
+  const populated = await comment.populate('author', 'name role avatarUrl');
   res.status(201).json({ comment: populated });
 });

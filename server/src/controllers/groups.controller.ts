@@ -6,8 +6,8 @@ import { asyncHandler } from '../utils/asyncHandler';
 import { escapeRegExp } from '../utils/escapeRegExp';
 
 const POPULATE_FIELDS = [
-  { path: 'leader', select: 'name email role' },
-  { path: 'members', select: 'name email role' },
+  { path: 'leader', select: 'name email role avatarUrl' },
+  { path: 'members', select: 'name email role avatarUrl' },
 ];
 
 const MAX_PAGE_SIZE = 200;

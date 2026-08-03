@@ -8,7 +8,7 @@ import { asyncHandler } from '../utils/asyncHandler';
 import { attachEngagement } from '../utils/engagement';
 import { buildBlogExcerpt } from '../utils/blogExcerpt';
 
-const AUTHOR_FIELDS = 'name role';
+const AUTHOR_FIELDS = 'name role avatarUrl';
 const MAX_PAGE_SIZE = 50;
 
 interface FeedItem {

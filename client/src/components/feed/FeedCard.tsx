@@ -103,7 +103,7 @@ export function FeedCard({
     <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="mb-3 flex items-start justify-between gap-2">
         <div className="flex items-center gap-3">
-          <Avatar name={item.author.name} size={9} />
+          <Avatar name={item.author.name} avatarUrl={item.author.avatarUrl} size={9} />
           <div>
             <div className="flex items-center gap-1.5">
               <Link
@@ -177,7 +177,7 @@ export function FeedCard({
           {loadingComments && <p className="text-xs text-slate-400">Loading comments...</p>}
           {comments?.map((c) => (
             <div key={c._id} className="flex items-start gap-2">
-              <Avatar name={c.author.name} size={7} />
+              <Avatar name={c.author.name} avatarUrl={c.author.avatarUrl} size={7} />
               <div className="rounded-lg bg-slate-50 px-3 py-1.5">
                 <p className="text-xs font-medium text-slate-900">{c.author.name}</p>
                 <p className="text-sm text-slate-700">{c.body}</p>

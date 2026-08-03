@@ -17,7 +17,7 @@ export const listBlogPosts = asyncHandler(async (req: Request, res: Response) =>
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit)
-      .populate('author', 'name role'),
+      .populate('author', 'name role avatarUrl'),
     BlogPost.countDocuments(),
   ]);
 
@@ -30,7 +30,7 @@ export const listBlogPosts = asyncHandler(async (req: Request, res: Response) =>
 });
 
 export const getBlogPost = asyncHandler(async (req: Request, res: Response) => {
-  const post = await BlogPost.findById(req.params.id).populate('author', 'name role');
+  const post = await BlogPost.findById(req.params.id).populate('author', 'name role avatarUrl');
   if (!post) {
     throw new HttpError(404, 'Blog post not found');
   }
@@ -67,7 +67,7 @@ export const createBlogPost = asyncHandler(async (req: Request, res: Response) =
     thumbnailUrl: typeof thumbnailUrl === 'string' && thumbnailUrl.trim() ? thumbnailUrl.trim() : undefined,
     blocks: sanitizedBlocks,
   });
-  const populated = await post.populate('author', 'name role');
+  const populated = await post.populate('author', 'name role avatarUrl');
   res.status(201).json({ post: populated });
 });
 
@@ -93,7 +93,7 @@ export const updateBlogPost = asyncHandler(async (req: Request, res: Response) =
     typeof thumbnailUrl === 'string' && thumbnailUrl.trim() ? thumbnailUrl.trim() : undefined;
   await post.save();
 
-  const populated = await post.populate('author', 'name role');
+  const populated = await post.populate('author', 'name role avatarUrl');
   res.json({ post: populated });
 });
 

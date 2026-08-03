@@ -140,9 +140,14 @@ export function GroupCard({
         <p className="mb-1.5 text-xs font-medium uppercase tracking-wide text-slate-400">Leader</p>
         {group.leader ? (
           <div className="flex items-center gap-2 rounded-lg bg-slate-50 px-2.5 py-2">
-            <Avatar name={group.leader.name} size={7} />
+            <Avatar name={group.leader.name} avatarUrl={group.leader.avatarUrl} size={7} />
             <div className="min-w-0">
-              <p className="truncate text-sm font-medium text-slate-900">{group.leader.name}</p>
+              <Link
+                to={`/profile/${group.leader._id}`}
+                className="block truncate text-sm font-medium text-slate-900 hover:underline"
+              >
+                {group.leader.name}
+              </Link>
               <p className="truncate text-xs text-slate-500">{group.leader.email}</p>
             </div>
           </div>
@@ -175,9 +180,14 @@ export function GroupCard({
                 className="group/member flex items-center justify-between gap-2 rounded-lg px-1.5 py-1.5 hover:bg-slate-50"
               >
                 <div className="flex min-w-0 items-center gap-2">
-                  <Avatar name={m.name} size={7} />
+                  <Avatar name={m.name} avatarUrl={m.avatarUrl} size={7} />
                   <div className="min-w-0">
-                    <p className="truncate text-sm text-slate-900">{m.name}</p>
+                    <Link
+                      to={`/profile/${m._id}`}
+                      className="block truncate text-sm text-slate-900 hover:underline"
+                    >
+                      {m.name}
+                    </Link>
                     <p className="truncate text-xs text-slate-400">{m.email}</p>
                   </div>
                 </div>

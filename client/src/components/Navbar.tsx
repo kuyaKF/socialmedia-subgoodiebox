@@ -1,4 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Avatar } from './Avatar'
 import { useAuth } from '../context/AuthContext'
 
 const HOME_SECTIONS = [
@@ -53,7 +54,14 @@ export function Navbar() {
               <Link to="/blog" className="text-slate-600 hover:text-slate-900">
                 Blog
               </Link>
-              <Link to={`/profile/${user.id}`} className="text-slate-600 hover:text-slate-900">
+              <Link to="/goodie-box" className="text-slate-600 hover:text-slate-900">
+                Goodie Box
+              </Link>
+              <Link
+                to={`/profile/${user.id}`}
+                className="flex items-center gap-1.5 text-slate-600 hover:text-slate-900"
+              >
+                <Avatar name={user.name} avatarUrl={user.avatarUrl} size={7} />
                 Profile
               </Link>
               {user.role === 'user' && (
@@ -69,6 +77,12 @@ export function Navbar() {
                   <Link to="/admin/groups" className="text-slate-600 hover:text-slate-900">
                     Manage Groups
                   </Link>
+                  <Link
+                    to="/admin/goodie-box-orders"
+                    className="text-slate-600 hover:text-slate-900"
+                  >
+                    Goodie Box Orders
+                  </Link>
                 </>
               )}
               <button
@@ -82,6 +96,9 @@ export function Navbar() {
             <>
               <Link to="/blog" className="text-slate-600 hover:text-slate-900">
                 Blog
+              </Link>
+              <Link to="/goodie-box" className="text-slate-600 hover:text-slate-900">
+                Goodie Box
               </Link>
               <Link to="/login" className="text-slate-600 hover:text-slate-900">
                 Log in

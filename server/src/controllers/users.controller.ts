@@ -3,6 +3,7 @@ import { HttpError } from '../middleware/errorHandler';
 import { SubscriptionPlan, User, UserRole } from '../models/User';
 import { asyncHandler } from '../utils/asyncHandler';
 import { escapeRegExp } from '../utils/escapeRegExp';
+import { isValidSlug, normalizeSlug, OBJECT_ID_PATTERN } from '../utils/slug';
 
 const VALID_PLANS: SubscriptionPlan[] = ['free', 'starter', 'plus', 'premium'];
 const MAX_PAGE_SIZE = 200;
@@ -70,7 +71,12 @@ export const listUsers = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const getUser = asyncHandler(async (req: Request, res: Response) => {
-  const user = await User.findById(req.params.id).select('-passwordHash').populate('group', 'name');
+  const raw = req.params.id;
+  const user = OBJECT_ID_PATTERN.test(raw)
+    ? await User.findById(raw).select('-passwordHash').populate('group', 'name')
+    : await User.findOne({ slug: normalizeSlug(raw) })
+        .select('-passwordHash')
+        .populate('group', 'name');
   if (!user) {
     throw new HttpError(404, 'User not found');
   }
@@ -78,7 +84,12 @@ export const getUser = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const updateMe = asyncHandler(async (req: Request, res: Response) => {
-  const { name, bio, avatarUrl } = req.body as { name?: string; bio?: string; avatarUrl?: string };
+  const { name, bio, avatarUrl, slug } = req.body as {
+    name?: string;
+    bio?: string;
+    avatarUrl?: string;
+    slug?: string;
+  };
   const user = await User.findById(req.user!.id);
   if (!user) {
     throw new HttpError(404, 'User not found');
@@ -86,6 +97,21 @@ export const updateMe = asyncHandler(async (req: Request, res: Response) => {
   if (name !== undefined) user.name = name;
   if (bio !== undefined) user.bio = bio;
   if (avatarUrl !== undefined) user.avatarUrl = avatarUrl;
+  if (slug !== undefined) {
+    const trimmed = slug.trim();
+    if (trimmed === '') {
+      user.slug = undefined;
+    } else {
+      const normalized = normalizeSlug(trimmed);
+      if (!isValidSlug(normalized)) {
+        throw new HttpError(
+          400,
+          'Profile URL must be 3-30 characters: lowercase letters, numbers, and hyphens only (no leading/trailing/double hyphens).'
+        );
+      }
+      user.slug = normalized;
+    }
+  }
   await user.save();
   res.json({ user: { ...user.toObject(), passwordHash: undefined } });
 });

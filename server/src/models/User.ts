@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import mongoose, { Document, Schema, Types } from 'mongoose';
+import { SLUG_MAX, SLUG_MIN, SLUG_PATTERN } from '../utils/slug';
 
 export type UserRole = 'user' | 'internal' | 'admin';
 export type SubscriptionPlan = 'free' | 'starter' | 'plus' | 'premium';
@@ -11,6 +12,7 @@ export interface IUser extends Document {
   name: string;
   bio?: string;
   avatarUrl?: string;
+  slug?: string;
   role: UserRole;
   group: Types.ObjectId | null;
   subscription: {
@@ -31,6 +33,16 @@ const userSchema = new Schema<IUser>(
     name: { type: String, required: true, trim: true },
     bio: { type: String, default: '' },
     avatarUrl: { type: String, default: '' },
+    slug: {
+      type: String,
+      unique: true,
+      sparse: true,
+      lowercase: true,
+      trim: true,
+      minlength: SLUG_MIN,
+      maxlength: SLUG_MAX,
+      match: SLUG_PATTERN,
+    },
     role: { type: String, enum: ['user', 'internal', 'admin'], default: 'user' },
     group: { type: Schema.Types.ObjectId, ref: 'Group', default: null },
     subscription: {

@@ -21,6 +21,7 @@ export interface User {
   name: string
   bio?: string
   avatarUrl?: string
+  slug?: string
   role: UserRole
   group: GroupRef | string | null
   subscription: Subscription
@@ -56,6 +57,7 @@ export interface GroupMember {
   name: string
   email: string
   role: UserRole
+  avatarUrl?: string
 }
 
 export interface Group {
@@ -85,6 +87,7 @@ export interface FeedAuthor {
   _id: string
   name: string
   role: UserRole
+  avatarUrl?: string
 }
 
 export type GroupPostVisibility = 'private' | 'public'
@@ -150,10 +153,45 @@ export interface AdminStats {
   totalGroups: number
   freeUsers: number
   paidUsers: number
+  currentMonthRevenue: number
   totalRevenue: number
   planDistribution: { plan: SubscriptionPlan; count: number }[]
   revenueByMonth: { month: string; revenue: number }[]
+  paymentsByPlanPerMonth: { month: string; starter: number; plus: number; premium: number }[]
   signupsByMonth: { month: string; count: number }[]
   newSubscriptionsByMonth: { month: string; count: number }[]
   renewalsByMonth: { month: string; count: number }[]
+  revenueByDay: { day: string; revenue: number }[]
+  signupsByDay: { day: string; count: number }[]
+  totalGoodieBoxOrders: number
+  totalGoodieBoxRevenue: number
+  currentMonthGoodieBoxRevenue: number
+  goodieBoxRevenueByMonth: { month: string; revenue: number }[]
+  goodieBoxOrdersByMonth: { month: string; count: number }[]
+  goodieBoxOrdersByDeliveryStatus: { status: GoodieBoxDeliveryStatus; count: number }[]
+}
+
+export type GoodieBoxPaymentStatus = 'pending' | 'paid' | 'failed' | 'expired'
+export type GoodieBoxDeliveryStatus = 'pending_delivery' | 'in_progress' | 'complete'
+
+export interface GoodieBoxOrder {
+  _id: string
+  user: string | { _id: string; name: string; email: string }
+  fullName: string
+  phone: string
+  address: string
+  deliveryNotes?: string
+  amount: number
+  currency: string
+  paymentStatus: GoodieBoxPaymentStatus
+  deliveryStatus: GoodieBoxDeliveryStatus
+  createdAt: string
+}
+
+export interface PaginatedGoodieBoxOrders {
+  orders: GoodieBoxOrder[]
+  total: number
+  page: number
+  limit: number
+  totalPages: number
 }

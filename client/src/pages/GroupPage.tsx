@@ -140,7 +140,7 @@ export function GroupPage() {
             to={`/profile/${group.leader._id}`}
             className="flex items-center gap-2 rounded-full bg-slate-50 py-1 pl-1 pr-3 text-sm hover:bg-slate-100"
           >
-            <Avatar name={group.leader.name} size={7} />
+            <Avatar name={group.leader.name} avatarUrl={group.leader.avatarUrl} size={7} />
             <span className="font-medium text-slate-900">{group.leader.name}</span>
             <span className="text-xs text-slate-400">Leader</span>
           </Link>
@@ -151,7 +151,7 @@ export function GroupPage() {
             to={`/profile/${m._id}`}
             className="flex items-center gap-2 rounded-full bg-slate-50 py-1 pl-1 pr-3 text-sm hover:bg-slate-100"
           >
-            <Avatar name={m.name} size={7} />
+            <Avatar name={m.name} avatarUrl={m.avatarUrl} size={7} />
             <span className="text-slate-700">{m.name}</span>
           </Link>
         ))}

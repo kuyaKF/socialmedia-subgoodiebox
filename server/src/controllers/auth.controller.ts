@@ -22,6 +22,7 @@ function publicUser(user: InstanceType<typeof User>) {
     name: user.name,
     bio: user.bio,
     avatarUrl: user.avatarUrl,
+    slug: user.slug,
     role: user.role,
     group: user.group,
     subscription: user.subscription,

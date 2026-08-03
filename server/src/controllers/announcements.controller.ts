@@ -9,7 +9,7 @@ export const createAnnouncement = asyncHandler(async (req: Request, res: Respons
     throw new HttpError(400, 'body is required');
   }
   const announcement = await Announcement.create({ author: req.user!.id, body: body.trim() });
-  const populated = await announcement.populate('author', 'name role');
+  const populated = await announcement.populate('author', 'name role avatarUrl');
   res.status(201).json({ announcement: populated });
 });
 

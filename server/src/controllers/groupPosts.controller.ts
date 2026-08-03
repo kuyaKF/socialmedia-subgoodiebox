@@ -66,7 +66,7 @@ export const getMyGroupFeed = asyncHandler(async (req: Request, res: Response) =
   const posts = await GroupPost.find(filter)
     .sort({ createdAt: -1 })
     .limit(limit)
-    .populate('author', 'name role')
+    .populate('author', 'name role avatarUrl')
     .populate('group', 'name');
 
   const page = posts.map((p) => ({
@@ -96,7 +96,7 @@ export const getGroupFeed = asyncHandler(async (req: Request, res: Response) => 
   const posts = await GroupPost.find(filter)
     .sort({ createdAt: -1 })
     .limit(limit)
-    .populate('author', 'name role')
+    .populate('author', 'name role avatarUrl')
     .populate('group', 'name');
 
   const page = posts.map((p) => ({
