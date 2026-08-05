@@ -283,3 +283,141 @@ consolidated pricing display strings that had drifted into two independent
 hand-copied arrays. Full rationale, including what was deliberately deferred (session
 invalidation, magic-byte upload validation, a schema-validation library) and why, is
 in project memory rather than this log.
+
+## 2026-08-05 — Backfill sessions.md to project start
+
+Added this changelog convention and backfilled it in two passes: git history for
+everything from 2026-07-30 onward, then the raw Claude Code session transcript
+(mined off disk rather than read directly — 37MB) for the two and a half days
+before `git init` that git has no record of at all. Recovered real timestamps and
+quotes, including the exact request that led to renaming this project "Haven
+Circle." One genuine ~31-hour gap (07-29 to 07-30) had no stated reason and was
+left as an honest unknown rather than guessed at.
+
+## 2026-08-05 — Modernize admin dashboard with shadcn/ui
+
+The admin surface (`/admin/*`) had zero design tokens, zero shared UI primitives
+(Pagination/Modal/Table markup copy-pasted 2-3x each), and zero admin-specific
+navigation — just three extra links bolted onto the main site navbar, with the
+blog editor unreachable from any nav at all. Brought in shadcn/ui (Radix +
+Tailwind) scoped to the admin surface only — this app's first UI-framework
+dependency, deliberately not used on member-facing pages. Added a `@theme` token
+layer (slate neutral, indigo primary accent), a real `AdminLayout` with a
+collapsible sidebar / mobile slide-over replacing the navbar links, a
+`usePaginatedResource` hook + `Pagination` component deduping the copy-pasted
+list logic, `Dialog`-based modals with real focus-trap/Escape/backdrop-close
+(the credential-reveal screen in the staff-registration modal is deliberately
+immune to accidental dismissal), and `Tabs`/`Card`/`ChartContainer`-based
+dashboard charts pulling colors from one shared `chartColors.ts` instead of
+scattered hex. Shipped as [PR #2](https://github.com/kuyaKF/socialmedia-subgoodiebox/pull/2).
+
+## 2026-08-05 — Add CLAUDE.md
+
+Added a `CLAUDE.md` at the repo root — commands, architecture (auth/roles, the
+merged feed content model, PayMongo's webhook-only activation pattern, the admin
+UI's shadcn/ui scoping), and the project's actual workflow (chat-driven, no
+tickets, Plan Mode for large/risky work only, `tsc` + browser verification,
+this changelog, commit-only-when-asked). Trimmed the overlapping private-memory
+workflow notes down to just what CLAUDE.md doesn't cover, to avoid the two
+drifting apart.
+
+## 2026-08-05 — Bring shadcn/ui to the member-facing "app" pages
+
+Research (two parallel passes over the member-facing surface) found a clear
+split: the landing page has genuine deliberate brand craft (a gradient hero,
+an amber "Best value" pricing badge, a dark-band visual rhythm) that a
+mechanical shadcn swap risked flattening, while the "app" pages — Feed,
+Profile, Group, auth, Navbar — were almost entirely generic, duplicated
+Tailwind markup with real, quantified drift (the same card recipe
+copy-pasted 3 places, 5+ inconsistent button variants, 3+ input variants, a
+hand-rolled mobile nav where a `Sheet` primitive already sat unused). Scoped
+this pass to the app pages only; landing/blog/subscription/Goodie Box stay
+deferred. Also decided to keep the hand-rolled `icons.tsx` (no icon-system
+unification churn) and keep `ProfilePage`'s inline expand/collapse editing
+instead of converting it to a `Dialog` — a real UX change, not just a re-skin.
+
+Migrated `Navbar` (mobile menu → `Sheet`), `FeedCard`/`Composer` (the
+triplicated card recipe → `Card`), `GroupPage`'s roster card, `ProfilePage`'s
+forms (`Input`/`Label`/`Textarea`, plus fixing a stray literal `✎` glyph to
+use the app's own `PencilIcon`), and `LoginPage`/`RegisterPage`.
+
+Verification surfaced a real, unrelated regression: `getUser`'s response was
+missing the `id` field entirely (introduced when the 2026-08-05 security pass
+switched it to `user.toObject()`, which drops Mongoose's virtual `id` getter
+unless explicitly re-added) — silently breaking every `isSelf`-dependent UI
+(edit-profile, change-password visibility) for every user, not just this
+session's test account. The same `.toObject()`-drops-`id` pattern existed in
+`updateMe`, `updateUserRole`, and `createStaffUser` too; fixed all four.
+
+## 2026-08-05 — Landing page: Goodie Box section + scroll-reveal animations
+
+The landing page never mentioned the Goodie Box at all — a real content gap,
+not just stale copy, since it's a real purchasable product. Added a new
+`GoodieBoxTeaser` section (between `SubscriptionTiers` and `FAQ`) pitching the
+one-time ₱799 purchase as a no-commitment alternative to subscribing, added a
+matching Navbar anchor link, and added a FAQ entry clarifying that a
+subscription isn't required to get a care package.
+
+Added scroll-reveal animations without a new dependency: a hand-rolled
+`useScrollReveal` hook (IntersectionObserver, mirroring the same pattern
+already used for Feed/Group infinite-scroll) paired with a polymorphic
+`Reveal` wrapper component, using animation utility classes from
+`tw-animate-css` (already loaded globally as a shadcn dependency) rather than
+pulling in a new animation library. Respects `prefers-reduced-motion`. Applied
+to every below-the-fold landing section, with staggered per-item reveal on
+the three grid/list sections (Introduction's cards, WhyJoin's reasons,
+SubscriptionTiers' tiers).
+
+Verification note: couldn't get a live visual confirmation of the reveal
+animation firing in-session — the Browser preview pane wasn't in a composited/
+displayed state, and IntersectionObserver callbacks don't fire without actual
+compositing (confirmed via a raw vanilla-JS IntersectionObserver test on the
+same page, which also didn't fire under the same condition — a tooling
+limitation, not evidence of a bug). Structural verification (correct initial
+`opacity-0` state, correct DOM nesting, `tsc --noEmit` clean, no console
+errors) all passed; the underlying pattern is identical to the already-proven
+Feed/Group scroll pattern.
+
+## 2026-08-05 — Remove scroll-reveal animation; fix subscription/Goodie Box copy conflation; redesign Goodie Box page
+
+User feedback on the scroll-reveal animation from the previous entry: "it
+looks bad." Removed it outright — deleted `useScrollReveal.ts` and
+`Reveal.tsx`, unwound every landing section back to plain unwrapped markup.
+No new dependency was added in the first place, so removal was a clean
+revert with no residue.
+
+Separately, user flagged that landing/subscription copy conflated the two
+paid products: "the subscription is separate from the goodie box, you only
+need the subscription if you want to be part of the private community
+circle." Investigation confirmed this was a real inaccuracy, not just wording
+— grepping the server found zero backend support for a recurring
+subscriber care package (no shipping/fulfillment model tied to
+`subscription.plan`; only the Goodie Box has real order/delivery tracking via
+`GoodieBoxOrder`). The "monthly/quarterly care package" claims baked into
+`SubscriptionTiers` (landing), `SubscriptionPage` (the real `/subscription`
+page shown to paying users), `Hero`, `Introduction`, `WhyJoin`, and `FAQ`
+were all unfulfilled promises. Rewrote all of them to center subscription
+value on the one thing that's actually real and backend-enforced — circle
+placement and a peer support lead — and reframed `GoodieBoxTeaser`/FAQ to be
+explicit the Goodie Box is a standalone purchase with no circle access and no
+subscription requirement. Also caught and fixed the same conflation in
+`SubscriptionPage.tsx`'s `PLAN_FEATURES` (shown to real paying subscribers,
+not just landing visitors) for consistency — this had been missed by the
+earlier landing-only copy pass.
+
+Then redesigned `GoodieBoxPage.tsx` (previously a single narrow centered
+column) into a proper one-time-purchase product page, informed by a search on
+2026-current single-product landing page conventions: benefit-led headline
+above the fold, price + one-time framing immediately visible, an icon-based
+product visual (no product photography exists for this app, so a large
+gift-icon tile with a soft gradient glow stands in), a "What's inside" 3-card
+grid, a "How it works" numbered list (delivery details → PayMongo checkout →
+pack & ship), and a sticky right-column buy box (`lg:sticky lg:top-24`) that
+holds the price, the existing delivery-details form, and the
+success/cancelled checkout banners — unchanged functionally, just relocated.
+Deliberately did not fabricate reviews/testimonials/return-policy claims,
+since this is a real product used by real (if few) users. Verified end-to-end
+in-browser: registered a throwaway test account, walked through the
+logged-out/staff/regular-user buy-box states, confirmed the sticky column and
+mobile stacking both render correctly, then deleted the test account via the
+established one-off-script-then-delete pattern.

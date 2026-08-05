@@ -5,3 +5,5 @@ build/
 !.env.example
 *.log
 *.tsbuildinfo
+.claude/settings.local.json
+.claude/.sessions-reminder-*

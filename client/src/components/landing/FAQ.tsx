@@ -3,8 +3,12 @@ import { ChevronDownIcon } from '../icons'
 
 const QUESTIONS = [
   {
-    q: 'What exactly is the care package?',
-    a: "A small box of comfort items — things like journals, teas, and gentle self-care goodies — shipped to your address each month (quarterly on Starter). Contents change often; it's a small surprise meant to land at the right time.",
+    q: "What's the difference between a membership and the Goodie Box?",
+    a: 'A membership subscribes you to a private support circle — a small group of people with a peer lead looking out for you. The Goodie Box is a separate, one-time ₱799 purchase of a physical comfort package; it does not include circle access and does not require a subscription.',
+  },
+  {
+    q: 'Do I need a subscription to get a Goodie Box?',
+    a: "No — the Goodie Box is open to anyone, whether or not you're on a paid plan. A subscription is only needed if you want to be part of a private community circle.",
   },
   {
     q: 'How do support circles work?',

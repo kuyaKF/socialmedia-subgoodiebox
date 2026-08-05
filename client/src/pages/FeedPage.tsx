@@ -89,7 +89,7 @@ export function FeedPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
       <div className="mb-6 flex items-center gap-3">
-        <h1 className="text-xl font-semibold text-slate-900">Welcome, {user.name}</h1>
+        <h1 className="text-xl font-semibold text-foreground">Welcome, {user.name}</h1>
         <RoleBadge role={user.role} />
       </div>
 

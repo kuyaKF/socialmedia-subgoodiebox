@@ -28,7 +28,7 @@ export function Newsletter() {
       <div className="mx-auto max-w-2xl px-4 text-center">
         <h2 className="text-2xl font-bold tracking-tight text-white">Stay connected</h2>
         <p className="mt-3 text-slate-300">
-          Get gentle updates on new care package themes, mental health resources, and community
+          Get gentle updates on new Goodie Box themes, mental health resources, and community
           news. No spam, ever.
         </p>
         {status === 'done' ? (

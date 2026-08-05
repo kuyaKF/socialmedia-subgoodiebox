@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Button } from '@/components/ui/button'
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { Avatar } from './Avatar'
-import { MenuIcon, XIcon } from './icons'
+import { MenuIcon } from './icons'
 import { useAuth } from '../context/AuthContext'
 
 const HOME_SECTIONS = [
   { href: '#about', label: 'Our Mission' },
   { href: '#why-join', label: 'Why Join' },
   { href: '#pricing', label: 'Support Plans' },
+  { href: '#goodie-box', label: 'Goodie Box' },
   { href: '#faq', label: 'FAQ' },
 ]
 
@@ -63,12 +66,9 @@ export function Navbar() {
           Admin
         </Link>
       )}
-      <button
-        onClick={handleLogout}
-        className="mt-2 block w-full rounded bg-slate-900 px-3 py-1.5 text-center text-white hover:bg-slate-700 lg:mt-0 lg:inline lg:w-auto"
-      >
+      <Button onClick={handleLogout} className="mt-2 w-full lg:mt-0 lg:w-auto">
         Log out
-      </button>
+      </Button>
     </>
   ) : (
     <>
@@ -81,12 +81,9 @@ export function Navbar() {
       <Link to="/login" className={linkClass}>
         Log in
       </Link>
-      <Link
-        to="/register"
-        className="mt-2 block w-full rounded bg-slate-900 px-3 py-1.5 text-center text-white hover:bg-slate-700 lg:mt-0 lg:inline lg:w-auto"
-      >
-        Join now
-      </Link>
+      <Button asChild className="mt-2 w-full lg:mt-0 lg:w-auto">
+        <Link to="/register">Join now</Link>
+      </Button>
     </>
   )
 
@@ -115,33 +112,35 @@ export function Navbar() {
           {links}
         </div>
 
-        <button
-          onClick={() => setMenuOpen((open) => !open)}
-          className="rounded p-1.5 text-slate-600 hover:bg-slate-100 lg:hidden"
-          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-        >
-          {menuOpen ? <XIcon className="h-5 w-5" /> : <MenuIcon className="h-5 w-5" />}
-        </button>
-      </div>
-
-      {menuOpen && (
-        <div className="border-t border-slate-200 px-6 py-3 text-sm lg:hidden">
-          {isHome && (
-            <div className="mb-2 flex flex-col border-b border-slate-200 pb-2">
-              {HOME_SECTIONS.map((section) => (
-                <a
-                  key={section.href}
-                  href={section.href}
-                  className="py-2 text-slate-500 hover:text-slate-900"
-                >
-                  {section.label}
-                </a>
-              ))}
+        <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Open menu">
+              <MenuIcon className="h-5 w-5" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="right">
+            <SheetHeader>
+              <SheetTitle>Menu</SheetTitle>
+            </SheetHeader>
+            <div className="flex flex-col gap-1 px-4 pb-4 text-sm">
+              {isHome && (
+                <div className="mb-2 flex flex-col border-b border-slate-200 pb-2">
+                  {HOME_SECTIONS.map((section) => (
+                    <a
+                      key={section.href}
+                      href={section.href}
+                      className="py-2 text-slate-500 hover:text-slate-900"
+                    >
+                      {section.label}
+                    </a>
+                  ))}
+                </div>
+              )}
+              <div className="flex flex-col">{links}</div>
             </div>
-          )}
-          <div className="flex flex-col">{links}</div>
-        </div>
-      )}
+          </SheetContent>
+        </Sheet>
+      </div>
     </nav>
   )
 }

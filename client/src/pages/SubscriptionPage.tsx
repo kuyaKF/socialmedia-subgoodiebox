@@ -8,9 +8,9 @@ import { useAuth } from '../context/AuthContext'
 import type { PaidSubscriptionPlan } from '../types/models'
 
 const PLAN_FEATURES: Record<PaidSubscriptionPlan, string[]> = {
-  starter: ['Full profile & circle membership', 'Community access', 'Seasonal care package'],
-  plus: ['Everything in Starter', 'Full care package every month', 'Priority circle placement'],
-  premium: ['Everything in Plus', 'Premium care package', 'Direct line to your peer support lead'],
+  starter: ['Full profile & circle membership', 'Community feed access', 'Like & comment on posts'],
+  plus: ['Everything in Starter', 'Priority circle placement', 'Early access to new resources'],
+  premium: ['Everything in Plus', 'Direct line to your peer support lead', 'Exclusive member-only resources'],
 }
 
 const PLANS: {

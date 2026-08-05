@@ -14,11 +14,11 @@ interface Tier {
 
 const TIER_DETAILS: Record<PaidSubscriptionPlan, Pick<Tier, 'tagline' | 'features' | 'highlighted'>> = {
   starter: {
-    tagline: 'Dip a toe in — circle access plus a seasonal care box.',
+    tagline: 'Dip a toe in — circle access and community support.',
     features: [
       'Full profile & circle membership',
-      'Community access',
-      'Seasonal care package (quarterly)',
+      'Community feed access',
+      'Like & comment on posts',
       'Cancel anytime',
     ],
   },
@@ -26,7 +26,6 @@ const TIER_DETAILS: Record<PaidSubscriptionPlan, Pick<Tier, 'tagline' | 'feature
     tagline: 'The one most members land on.',
     features: [
       'Everything in Starter',
-      'Full care package every month',
       'Priority circle placement',
       'Early access to new resources',
       'Cancel anytime',
@@ -37,7 +36,6 @@ const TIER_DETAILS: Record<PaidSubscriptionPlan, Pick<Tier, 'tagline' | 'feature
     tagline: 'For members who want deeper, ongoing support.',
     features: [
       'Everything in Plus',
-      'Premium, higher-value care package',
       'Direct line to your peer support lead',
       'Exclusive member-only resources',
       'Cancel anytime',
@@ -59,11 +57,11 @@ export function SubscriptionTiers() {
     <section id="pricing" className="mx-auto max-w-5xl px-4 py-20">
       <div className="mx-auto mb-4 max-w-2xl text-center">
         <h2 className="text-3xl font-bold tracking-tight text-slate-900">
-          Membership &amp; your monthly care package
+          Membership gets you into the circle
         </h2>
         <p className="mt-4 text-slate-600">
-          Every plan includes full access to the community. The difference is what shows up in
-          your mailbox — and how often. Pick what feels right, change your mind whenever.
+          A subscription is what places you in a private support circle with a peer lead looking
+          out for you. Pick the level of support that fits — change your mind whenever.
         </p>
       </div>
 
@@ -119,8 +117,12 @@ export function SubscriptionTiers() {
       </div>
       <p className="mt-8 text-center text-xs text-slate-400">
         Paid via PayMongo (currently in test mode) — 30 days per payment, cancel anytime from your
-        subscription page. Part of every membership helps fund a care package for a member who
-        can't yet afford one.
+        subscription page. Part of every membership helps fund a Goodie Box for a member who
+        can't yet afford one. Want a comfort box for yourself instead? Get a one-time{' '}
+        <Link to="/goodie-box" className="underline hover:text-slate-500">
+          Goodie Box
+        </Link>{' '}
+        — no subscription needed.
       </p>
     </section>
   )
