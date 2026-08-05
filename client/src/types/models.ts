@@ -17,7 +17,9 @@ export interface GroupRef {
 
 export interface User {
   id: string
-  email: string
+  // Absent when viewing another user's profile as a non-admin — only the profile
+  // owner and admins ever receive this field from the server.
+  email?: string
   name: string
   bio?: string
   avatarUrl?: string
@@ -55,7 +57,8 @@ export interface PaginatedUsers {
 export interface GroupMember {
   _id: string
   name: string
-  email: string
+  // Absent on the member-facing "my circle" view — only included for admins.
+  email?: string
   role: UserRole
   avatarUrl?: string
 }

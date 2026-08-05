@@ -10,11 +10,7 @@ import { Avatar } from '../components/Avatar'
 import { RoleBadge } from '../components/RoleBadge'
 import { useAuth } from '../context/AuthContext'
 import type { GroupRef, User } from '../types/models'
-
-function extractErrorMessage(err: unknown, fallback: string): string {
-  const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
-  return message || fallback
-}
+import { extractErrorMessage } from '../utils/errors'
 
 export function ProfilePage() {
   const { id } = useParams<{ id: string }>()
@@ -211,7 +207,7 @@ export function ProfilePage() {
         </form>
       ) : (
         <>
-          <p className="mb-1 text-slate-600">{profile.email}</p>
+          {profile.email && <p className="mb-1 text-slate-600">{profile.email}</p>}
           <p className="mb-4 text-slate-700">{profile.bio || 'No bio yet.'}</p>
           <p className="mb-4 text-sm text-slate-500">
             Group: {group ? group.name : 'Not yet assigned'}

@@ -5,9 +5,17 @@ import { IUser, User } from '../models/User';
 import { asyncHandler } from '../utils/asyncHandler';
 import { escapeRegExp } from '../utils/escapeRegExp';
 
+// Admin-only views (list/get/create/update/leader/member management) — includes email.
 const POPULATE_FIELDS = [
   { path: 'leader', select: 'name email role avatarUrl' },
   { path: 'members', select: 'name email role avatarUrl' },
+];
+
+// Member-facing view (a member looking at their own circle's roster) — no email, so
+// fellow members can't harvest each other's email addresses just by viewing the roster.
+const MEMBER_POPULATE_FIELDS = [
+  { path: 'leader', select: 'name role avatarUrl' },
+  { path: 'members', select: 'name role avatarUrl' },
 ];
 
 const MAX_PAGE_SIZE = 200;
@@ -64,7 +72,7 @@ export const getMyGroup = asyncHandler(async (req: Request, res: Response) => {
   if (!currentUser?.group) {
     throw new HttpError(404, 'You are not assigned to a group yet');
   }
-  const group = await Group.findById(currentUser.group).populate(POPULATE_FIELDS);
+  const group = await Group.findById(currentUser.group).populate(MEMBER_POPULATE_FIELDS);
   if (!group) {
     throw new HttpError(404, 'Group not found');
   }

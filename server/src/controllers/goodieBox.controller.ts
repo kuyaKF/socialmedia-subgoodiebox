@@ -68,8 +68,8 @@ export const createGoodieBoxCheckout = asyncHandler(async (req: Request, res: Re
 });
 
 export const listMyGoodieBoxOrders = asyncHandler(async (req: Request, res: Response) => {
-  const orders = await GoodieBoxOrder.find({ user: req.user!.id, paymentStatus: 'paid' }).sort({
-    createdAt: -1,
-  });
+  const orders = await GoodieBoxOrder.find({ user: req.user!.id, paymentStatus: 'paid' })
+    .select('-checkoutSessionId')
+    .sort({ createdAt: -1 });
   res.json({ orders });
 });

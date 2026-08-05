@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom'
+import { PAID_PLAN_IDS, PLAN_LABELS, PLAN_PRICE_LABELS } from '../../config/plans'
 import { useAuth } from '../../context/AuthContext'
+import type { PaidSubscriptionPlan } from '../../types/models'
 import { CheckIcon } from '../icons'
 
 interface Tier {
@@ -10,12 +12,8 @@ interface Tier {
   highlighted?: boolean
 }
 
-// Must match server/src/config/plans.ts and client/src/pages/SubscriptionPage.tsx — no public
-// pricing endpoint yet, so these are kept in sync by hand.
-const TIERS: Tier[] = [
-  {
-    name: 'Starter',
-    price: '₱499',
+const TIER_DETAILS: Record<PaidSubscriptionPlan, Pick<Tier, 'tagline' | 'features' | 'highlighted'>> = {
+  starter: {
     tagline: 'Dip a toe in — circle access plus a seasonal care box.',
     features: [
       'Full profile & circle membership',
@@ -24,9 +22,7 @@ const TIERS: Tier[] = [
       'Cancel anytime',
     ],
   },
-  {
-    name: 'Plus',
-    price: '₱999',
+  plus: {
     tagline: 'The one most members land on.',
     features: [
       'Everything in Starter',
@@ -37,9 +33,7 @@ const TIERS: Tier[] = [
     ],
     highlighted: true,
   },
-  {
-    name: 'Premium',
-    price: '₱1,999',
+  premium: {
     tagline: 'For members who want deeper, ongoing support.',
     features: [
       'Everything in Plus',
@@ -49,7 +43,13 @@ const TIERS: Tier[] = [
       'Cancel anytime',
     ],
   },
-]
+}
+
+const TIERS: Tier[] = PAID_PLAN_IDS.map((id) => ({
+  name: PLAN_LABELS[id],
+  price: PLAN_PRICE_LABELS[id],
+  ...TIER_DETAILS[id],
+}))
 
 export function SubscriptionTiers() {
   const { user } = useAuth()

@@ -14,6 +14,12 @@ export async function sendVerificationEmail(to: string, name: string, token: str
 
   const resend = getClient();
   if (!resend) {
+    if (env.nodeEnv === 'production') {
+      // Fail loudly rather than silently skip sending — and never log the raw
+      // verification link (it doubles as an account-verification credential) outside
+      // of local dev.
+      throw new Error('RESEND_API_KEY is not configured');
+    }
     console.warn('[email] RESEND_API_KEY is not configured — skipping verification email to', to);
     console.log('[email] verification link (dev only):', verifyUrl);
     return;

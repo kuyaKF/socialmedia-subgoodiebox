@@ -8,11 +8,12 @@ import {
   verifyEmail,
 } from '../controllers/auth.controller';
 import { requireAuth } from '../middleware/auth';
+import { authAttemptLimiter, registerLimiter } from '../middleware/rateLimit';
 
 const router = Router();
 
-router.post('/register', register);
-router.post('/login', login);
+router.post('/register', registerLimiter, register);
+router.post('/login', authAttemptLimiter, login);
 router.post('/logout', logout);
 router.get('/me', requireAuth, me);
 router.post('/verify-email', verifyEmail);

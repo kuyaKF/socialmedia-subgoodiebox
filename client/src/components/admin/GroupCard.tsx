@@ -4,11 +4,7 @@ import { Avatar } from '../Avatar'
 import { CheckIcon, PencilIcon, TrashIcon, XIcon } from '../icons'
 import { SearchableSelect } from '../SearchableSelect'
 import type { Group, User } from '../../types/models'
-
-function extractErrorMessage(err: unknown, fallback: string): string {
-  const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
-  return message || fallback
-}
+import { extractErrorMessage } from '../../utils/errors'
 
 export function GroupCard({
   group,
