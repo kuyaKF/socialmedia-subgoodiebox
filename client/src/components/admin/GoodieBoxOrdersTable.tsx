@@ -1,6 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { usePaginatedResource } from '@/hooks/usePaginatedResource'
 import { advanceGoodieBoxOrderRequest, listGoodieBoxOrdersRequest } from '../../api/adminGoodieBox.api'
-import type { GoodieBoxDeliveryStatus, PaginatedGoodieBoxOrders } from '../../types/models'
+import type { GoodieBoxDeliveryStatus } from '../../types/models'
+import { StatusBadge } from '../StatusBadge'
+import { DELIVERY_STATUS_BADGE_COLOR } from './chartColors'
+import { Pagination } from './Pagination'
 
 const PAGE_SIZE = 10
 
@@ -20,25 +26,12 @@ export function GoodieBoxOrdersTable({
   refreshTick: number
   onAdvanced: () => void
 }) {
-  const [page, setPage] = useState(1)
-  const [data, setData] = useState<PaginatedGoodieBoxOrders | null>(null)
-  const [loading, setLoading] = useState(true)
   const [advancingId, setAdvancingId] = useState<string | null>(null)
 
-  useEffect(() => {
-    let cancelled = false
-    setLoading(true)
-    listGoodieBoxOrdersRequest(deliveryStatus, page, PAGE_SIZE)
-      .then((result) => {
-        if (!cancelled) setData(result)
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false)
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [deliveryStatus, page, refreshTick])
+  const { page, setPage, data, loading } = usePaginatedResource(
+    (page) => listGoodieBoxOrdersRequest(deliveryStatus, page, PAGE_SIZE),
+    [deliveryStatus, refreshTick],
+  )
 
   async function handleAdvance(orderId: string) {
     setAdvancingId(orderId)
@@ -54,83 +47,82 @@ export function GoodieBoxOrdersTable({
 
   return (
     <div>
-      <h2 className="mb-3 text-sm font-medium text-slate-500">{title}</h2>
-      <div className="overflow-x-auto rounded border border-slate-200">
-        <table className="min-w-full text-left text-sm">
-          <thead className="bg-slate-50 text-xs uppercase text-slate-500">
-            <tr>
-              <th className="px-3 py-2">Customer</th>
-              <th className="px-3 py-2">Recipient</th>
-              <th className="px-3 py-2">Phone</th>
-              <th className="px-3 py-2">Address</th>
-              <th className="px-3 py-2">Notes</th>
-              <th className="px-3 py-2">Purchased</th>
-              {advanceLabel && <th className="px-3 py-2" />}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
+      <h2 className="mb-3">
+        <StatusBadge label={title} color={DELIVERY_STATUS_BADGE_COLOR[deliveryStatus]} />
+      </h2>
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Customer</TableHead>
+              <TableHead>Recipient</TableHead>
+              <TableHead>Phone</TableHead>
+              <TableHead>Address</TableHead>
+              <TableHead>Notes</TableHead>
+              <TableHead>Purchased</TableHead>
+              {advanceLabel && <TableHead />}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {data?.orders.map((order) => {
               const buyer = typeof order.user === 'object' ? order.user : null
               return (
-                <tr key={order._id}>
-                  <td className="px-3 py-2 font-medium text-slate-900">
+                <TableRow key={order._id}>
+                  <TableCell className="font-medium text-foreground">
                     {buyer ? buyer.name : '—'}
-                    {buyer && <p className="text-xs font-normal text-slate-400">{buyer.email}</p>}
-                  </td>
-                  <td className="px-3 py-2 text-slate-600">{order.fullName}</td>
-                  <td className="px-3 py-2 text-slate-600">{order.phone}</td>
-                  <td className="max-w-xs px-3 py-2 text-slate-600">{order.address}</td>
-                  <td className="max-w-xs px-3 py-2 text-slate-400">{order.deliveryNotes || '—'}</td>
-                  <td className="px-3 py-2 text-slate-600">
+                    {buyer && (
+                      <p className="text-xs font-normal text-muted-foreground">{buyer.email}</p>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">{order.fullName}</TableCell>
+                  <TableCell className="text-muted-foreground">{order.phone}</TableCell>
+                  <TableCell className="max-w-xs whitespace-normal text-muted-foreground">
+                    {order.address}
+                  </TableCell>
+                  <TableCell className="max-w-xs whitespace-normal text-muted-foreground">
+                    {order.deliveryNotes || '—'}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
                     {new Date(order.createdAt).toLocaleDateString()}
-                  </td>
+                  </TableCell>
                   {advanceLabel && (
-                    <td className="px-3 py-2">
-                      <button
+                    <TableCell>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
                         onClick={() => handleAdvance(order._id)}
                         disabled={advancingId === order._id}
-                        className="rounded border border-slate-300 px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
                       >
                         {advancingId === order._id ? 'Moving...' : advanceLabel}
-                      </button>
-                    </td>
+                      </Button>
+                    </TableCell>
                   )}
-                </tr>
+                </TableRow>
               )
             })}
             {!loading && data?.orders.length === 0 && (
-              <tr>
-                <td colSpan={advanceLabel ? 7 : 6} className="px-3 py-6 text-center text-slate-500">
+              <TableRow>
+                <TableCell
+                  colSpan={advanceLabel ? 7 : 6}
+                  className="py-6 text-center text-muted-foreground"
+                >
                   No orders here.
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             )}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
 
-      {data && data.total > 0 && (
-        <div className="mt-3 flex items-center justify-between text-sm text-slate-600">
-          <span>
-            {data.total} order{data.total === 1 ? '' : 's'} · page {data.page} of {data.totalPages}
-          </span>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={data.page <= 1}
-              className="rounded border border-slate-300 px-2 py-1 disabled:opacity-40"
-            >
-              Prev
-            </button>
-            <button
-              onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))}
-              disabled={data.page >= data.totalPages}
-              className="rounded border border-slate-300 px-2 py-1 disabled:opacity-40"
-            >
-              Next
-            </button>
-          </div>
-        </div>
+      {data && (
+        <Pagination
+          page={page}
+          totalPages={data.totalPages}
+          total={data.total}
+          itemLabel="order"
+          onPageChange={setPage}
+        />
       )}
     </div>
   )

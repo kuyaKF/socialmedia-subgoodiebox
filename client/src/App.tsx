@@ -1,6 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
-import { EmailVerificationBanner } from './components/EmailVerificationBanner'
-import { Navbar } from './components/Navbar'
+import { AdminLayout } from './components/admin/AdminLayout'
+import { SiteLayout } from './components/SiteLayout'
 import { AdminDashboardPage } from './pages/AdminDashboardPage'
 import { AdminGoodieBoxOrdersPage } from './pages/AdminGoodieBoxOrdersPage'
 import { AdminGroupsPage } from './pages/AdminGroupsPage'
@@ -23,10 +23,8 @@ import { ProtectedRoute, PublicOnlyRoute } from './routes/ProtectedRoute'
 
 function App() {
   return (
-    <div className="min-h-screen bg-white">
-      <Navbar />
-      <EmailVerificationBanner />
-      <Routes>
+    <Routes>
+      <Route element={<SiteLayout />}>
         <Route path="/" element={<LandingPage />} />
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
@@ -82,57 +80,25 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/admin/groups"
-          element={
-            <ProtectedRoute roles={['admin']}>
-              <AdminGroupsPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/groups/:groupId/feed"
-          element={
-            <ProtectedRoute roles={['admin']}>
-              <GroupPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/dashboard"
-          element={
-            <ProtectedRoute roles={['admin']}>
-              <AdminDashboardPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/goodie-box-orders"
-          element={
-            <ProtectedRoute roles={['admin']}>
-              <AdminGoodieBoxOrdersPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/blog/new"
-          element={
-            <ProtectedRoute roles={['admin']}>
-              <BlogPostEditorPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/blog/:id/edit"
-          element={
-            <ProtectedRoute roles={['admin']}>
-              <BlogPostEditorPage />
-            </ProtectedRoute>
-          }
-        />
         <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-    </div>
+      </Route>
+
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute roles={['admin']}>
+            <AdminLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="dashboard" element={<AdminDashboardPage />} />
+        <Route path="groups" element={<AdminGroupsPage />} />
+        <Route path="groups/:groupId/feed" element={<GroupPage />} />
+        <Route path="goodie-box-orders" element={<AdminGoodieBoxOrdersPage />} />
+        <Route path="blog/new" element={<BlogPostEditorPage />} />
+        <Route path="blog/:id/edit" element={<BlogPostEditorPage />} />
+      </Route>
+    </Routes>
   )
 }
 

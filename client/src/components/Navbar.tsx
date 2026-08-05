@@ -59,17 +59,9 @@ export function Navbar() {
         </Link>
       )}
       {user.role === 'admin' && (
-        <>
-          <Link to="/admin/dashboard" className={linkClass}>
-            Dashboard
-          </Link>
-          <Link to="/admin/groups" className={linkClass}>
-            Manage Groups
-          </Link>
-          <Link to="/admin/goodie-box-orders" className={linkClass}>
-            Goodie Box Orders
-          </Link>
-        </>
+        <Link to="/admin/dashboard" className={linkClass}>
+          Admin
+        </Link>
       )}
       <button
         onClick={handleLogout}
