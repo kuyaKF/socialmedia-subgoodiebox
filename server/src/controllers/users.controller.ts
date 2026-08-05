@@ -26,7 +26,7 @@ export const listUsers = asyncHandler(async (req: Request, res: Response) => {
 
   if (group === 'unassigned') {
     filter.group = null;
-  } else if (group) {
+  } else if (typeof group === 'string' && OBJECT_ID_PATTERN.test(group)) {
     filter.group = group;
   }
 
@@ -80,7 +80,17 @@ export const getUser = asyncHandler(async (req: Request, res: Response) => {
   if (!user) {
     throw new HttpError(404, 'User not found');
   }
-  res.json({ user });
+
+  // Email is only visible to the profile owner and admins — other members shouldn't be
+  // able to harvest each other's email addresses just by viewing a profile.
+  const isSelf = req.user!.id === user.id;
+  const canSeeEmail = isSelf || req.user!.role === 'admin';
+  const response = user.toObject() as unknown as Record<string, unknown>;
+  if (!canSeeEmail) {
+    delete response.email;
+  }
+
+  res.json({ user: response });
 });
 
 export const updateMe = asyncHandler(async (req: Request, res: Response) => {

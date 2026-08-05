@@ -4,6 +4,7 @@ import { createGoodieBoxCheckoutRequest, listMyGoodieBoxOrdersRequest } from '..
 import { CheckIcon } from '../components/icons'
 import { useAuth } from '../context/AuthContext'
 import type { GoodieBoxDeliveryStatus, GoodieBoxOrder } from '../types/models'
+import { extractErrorMessage } from '../utils/errors'
 
 const GOODIE_BOX_PRICE_LABEL = '₱799.00'
 
@@ -29,10 +30,6 @@ function DeliveryStatusPill({ status }: { status: GoodieBoxDeliveryStatus }) {
   )
 }
 
-function extractErrorMessage(err: unknown, fallback: string): string {
-  const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
-  return message || fallback
-}
 
 export function GoodieBoxPage() {
   const { user } = useAuth()

@@ -3,36 +3,27 @@ import { useSearchParams } from 'react-router-dom'
 import { createCheckoutRequest } from '../api/payments.api'
 import { cancelMySubscriptionRequest } from '../api/subscription.api'
 import { CheckIcon } from '../components/icons'
+import { PAID_PLAN_IDS, PLAN_LABELS, PLAN_PRICE_LABELS } from '../config/plans'
 import { useAuth } from '../context/AuthContext'
 import type { PaidSubscriptionPlan } from '../types/models'
 
-// Must match server/src/config/plans.ts — this boilerplate doesn't expose a public
-// pricing endpoint, so keep these in sync by hand if you change the server-side amounts.
+const PLAN_FEATURES: Record<PaidSubscriptionPlan, string[]> = {
+  starter: ['Full profile & circle membership', 'Community access', 'Seasonal care package'],
+  plus: ['Everything in Starter', 'Full care package every month', 'Priority circle placement'],
+  premium: ['Everything in Plus', 'Premium care package', 'Direct line to your peer support lead'],
+}
+
 const PLANS: {
   id: PaidSubscriptionPlan
   label: string
   priceLabel: string
   features: string[]
-}[] = [
-  {
-    id: 'starter',
-    label: 'Starter',
-    priceLabel: '₱499/mo',
-    features: ['Full profile & circle membership', 'Community access', 'Seasonal care package'],
-  },
-  {
-    id: 'plus',
-    label: 'Plus',
-    priceLabel: '₱999/mo',
-    features: ['Everything in Starter', 'Full care package every month', 'Priority circle placement'],
-  },
-  {
-    id: 'premium',
-    label: 'Premium',
-    priceLabel: '₱1,999/mo',
-    features: ['Everything in Plus', 'Premium care package', 'Direct line to your peer support lead'],
-  },
-]
+}[] = PAID_PLAN_IDS.map((id) => ({
+  id,
+  label: PLAN_LABELS[id],
+  priceLabel: `${PLAN_PRICE_LABELS[id]}/mo`,
+  features: PLAN_FEATURES[id],
+}))
 
 export function SubscriptionPage() {
   const { user, refreshMe } = useAuth()
