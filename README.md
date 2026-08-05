@@ -12,14 +12,17 @@ group's leader plus members from the pool.
 ## Scope of this boilerplate
 
 Included: a public marketing landing page (`/`), registration/login with email verification via
-Resend, 3 roles, user profiles, self-service password changes, admin-managed groups (create,
-rename, assign leader, assign/remove members — searchable, paginated), an admin-only staff
-registration form (with a password generator, for onboarding `internal`/`admin` accounts directly),
-real subscription payments via PayMongo Checkout (Starter/Plus/Premium, card, PHP), an admin "All
-Users" browser (search by name/email, filter/sort by subscription plan / group / registration
-date, paginated), a working newsletter signup, and an infinite-scroll social feed (`/feed`) with
-admin announcements, admin blog posts, group-leader-only group posts (visible only to that group's
-members), plus likes and comments on any feed item.
+Resend, 3 roles, user profiles (bio, avatar upload, editable custom profile URL), self-service
+password changes, admin-managed groups ("circles" in the UI — create, rename, assign leader,
+assign/remove members — searchable, paginated) with a dedicated group feed page, an admin-only
+staff registration form (with a password generator, for onboarding `internal`/`admin` accounts
+directly), real subscription payments via PayMongo Checkout (Starter/Plus/Premium, card, PHP), a
+one-time-purchase Goodie Box with an admin delivery-tracking pipeline, an admin "All Users" browser
+(search by name/email, filter/sort by subscription plan / group / registration date, paginated), a
+working newsletter signup, a block-based blog editor (headings, paragraphs, images,
+drag-to-reorder) with Cloudinary-hosted images, and an infinite-scroll social feed (`/feed`) with
+admin announcements, admin blog posts, and group posts (private to the group, or opted public into
+the general feed by the leader), plus likes and comments on any feed item.
 
 Roles:
 - `user` — a subscriber. Sees the Subscription page; can never be a group leader.
@@ -29,9 +32,12 @@ Roles:
   can create groups and assign leaders/members.
 
 Explicitly **not** included yet (deferred for a future pass):
-- Image/media uploads on feed posts (text-only for now — no storage infra wired up)
+- Image/media uploads on feed posts themselves — announcements and group posts are text-only
+  (blog post content and profile avatars *do* support images, via Cloudinary — see "Image
+  uploads" below)
 - True auto-recurring billing — see "Payments" below for why, and what's here instead
-- Drag-and-drop for group member assignment (uses a searchable type-ahead picker instead)
+- Drag-and-drop for group member assignment (uses a searchable type-ahead picker instead — block
+  reordering in the blog editor does use drag-and-drop, see "Blog post editor" below)
 - A dedicated admin management page for editing/deleting announcements or blog posts (deleting
   happens inline from the feed card itself instead)
 - Automated tests, CI, Docker
@@ -43,13 +49,23 @@ Explicitly **not** included yet (deferred for a future pass):
 - `/blog`, `/blog/:id` — public blog, viewable by guests. Linked from the nav (both logged-in and
   logged-out) and from the homepage's "From our blog" preview section. Paginated list + full post
   view; no auth required.
+- `/goodie-box` — public pitch page for the one-time-purchase Goodie Box; checkout and order
+  history appear once logged in as a `user`.
 - `/login`, `/register` — public only (redirect to `/feed` if already authenticated).
 - `/terms`, `/privacy` — public placeholder legal pages, linked from the landing footer.
-- `/feed` — authenticated home: infinite-scroll feed of announcements, blog posts, and (if you
-  belong to a group) that group's posts.
-- `/profile/:id`, `/subscription`, `/admin/groups` — authenticated app, same as before.
+- `/feed` — authenticated home: infinite-scroll feed of announcements, blog posts, and group posts
+  (your own group's, plus any other group's posts its leader opted into the general feed).
+- `/profile/:id` — authenticated; also reachable at `/profile/:slug` if the user set a custom
+  profile URL. Public within the app: bio, avatar, group, and (for your own profile) editing.
+- `/group` — authenticated: your own group's dedicated feed, member list, and post composer (with
+  a private/public visibility choice available to the leader and admins).
+- `/subscription`, `/admin/groups` — authenticated app, same as before.
+- `/admin/groups/:groupId/feed` — admin-only: the same group feed view as `/group`, for any group.
 - `/admin/dashboard` — admin-only stats: total users/groups, free vs. paid split, revenue per
   month, and new signups per month (last 12 months, via `recharts`).
+- `/admin/goodie-box-orders` — admin-only: Goodie Box orders grouped by delivery status, with a
+  one-way "advance status" action per order.
+- `/admin/blog/new`, `/admin/blog/:id/edit` — admin-only block-based blog post editor.
 
 ## Feed content model
 
@@ -57,9 +73,12 @@ Explicitly **not** included yet (deferred for a future pass):
 - **Blog posts** — admin-only to create, visible to everyone in the feed, and also public at
   `/blog` (list) and `/blog/:id` (detail) — no login required. The public pages are read-only
   (no like/comment UI); engagement is a feed-only feature for signed-in users.
-- **Group posts** — only the specific group's assigned `leader` can create one (checked
-  server-side against `Group.leader`, not just the `internal`/`admin` role generally); only
-  members of that group (and the leader) see it in their feed.
+- **Group posts** — only the specific group's assigned `leader` (or an admin) can create one
+  (checked server-side against `Group.leader`, not just the `internal`/`admin` role generally),
+  and only from the group's own dedicated page (`/group`, or `/admin/groups/:groupId/feed`) — the
+  general feed has no group-post composer. Each post is `private` (default — only that group's
+  members and leader see it, on `/group`) or `public` (also appears in everyone's general
+  `/feed`), chosen by the leader/admin at post time.
 - **Likes/comments** — any authenticated user can like or comment on any feed item, regardless of
   type. Likes are a toggle (one per user per item); comments are flat (no threaded replies).
 - Deleting a post is available inline on its card to the post's author or any admin.
@@ -81,6 +100,10 @@ user's session is checked (login or `/auth/me`) they're lazily downgraded back t
 job, no auto-charge — renewal is a manual action. Swap in the Subscriptions API later if you need
 true auto-recurring and confirm it's enabled on your account first.
 
+This same PayMongo Checkout + webhook pattern also powers the one-time Goodie Box purchase — see
+"Goodie Box" below — but it registers as a **second, separate webhook** with its own signing
+secret, since it's a distinct one-time payment rather than a subscription.
+
 **Setup:**
 1. Get your **test mode** keys from the PayMongo dashboard (Developers → API Keys) — `sk_test_...`
    for `PAYMONGO_SECRET_KEY`. Never use live keys (`sk_live_...`) outside of production, and never
@@ -89,14 +112,36 @@ true auto-recurring and confirm it's enabled on your account first.
    `<your-server-url>/api/payments/webhook`, subscribed to at least `checkout_session.payment.paid`.
    PayMongo gives you a signing secret (`whsec_...`) at that point — set it as
    `PAYMONGO_WEBHOOK_SECRET`.
-3. **Local testing**: PayMongo can't reach `http://localhost:4000` directly. Use a tunnel (e.g.
-   `ngrok http 4000`) and point the webhook at the tunnel's HTTPS URL instead while developing.
-4. Adjust the peso amounts in `server/src/config/plans.ts` (and the matching display prices in
+3. Create a **second** webhook pointing at `<your-server-url>/api/goodie-box/webhook`, same event,
+   and set its (different) signing secret as `PAYMONGO_GOODIE_BOX_WEBHOOK_SECRET` — the two
+   webhooks and secrets are not interchangeable.
+4. **Local testing**: PayMongo can't reach `http://localhost:4000` directly. Use a tunnel (e.g.
+   `ngrok http 4000`, or expose the client's Vite dev server per "Sharing your local dev server"
+   below and point the webhooks at `<tunnel-url>/api/...`) and point both webhooks at the tunnel's
+   HTTPS URL instead while developing.
+5. Adjust the peso amounts in `server/src/config/plans.ts` (and the matching display prices in
    `client/src/pages/SubscriptionPage.tsx` — there's no public pricing endpoint yet, so these are
    kept in sync by hand) to your actual pricing before going live.
-5. Before flipping to live keys: re-read PayMongo's go-live checklist, confirm the webhook signing
-   secret is the *live* one (test and live webhooks have separate secrets), and test the full
+6. Before flipping to live keys: re-read PayMongo's go-live checklist, confirm both webhook signing
+   secrets are the *live* ones (test and live webhooks have separate secrets), and test the full
    checkout → webhook → activation flow end-to-end in test mode first.
+
+## Goodie Box
+
+A standalone, one-time-purchase physical care package (`/goodie-box`), separate from the recurring
+subscription plans — available only to `user` accounts (staff/admin are blocked server-side, since
+they're not subscribers). The price and label live in `server/src/config/goodieBox.ts`.
+
+The buyer fills in delivery details (name, phone, address, optional notes), which creates a
+`GoodieBoxOrder` (`paymentStatus: 'pending'`, `deliveryStatus: 'pending_delivery'`) alongside a
+PayMongo Checkout Session, same as subscriptions — just via its own webhook and secret (see
+"Payments" above). Once the webhook confirms payment, the order flips to `paymentStatus: 'paid'`
+and the buyer sees it under "My orders" on `/goodie-box` (the page polls briefly right after
+checkout while waiting for the webhook to land).
+
+From there it's an **admin-only delivery pipeline**: `/admin/goodie-box-orders` lists paid orders
+grouped and paginated by `deliveryStatus`, and admins move each order forward one step at a time —
+`pending_delivery` → `in_progress` → `complete` — there's no way to move a status backward.
 
 ## Email verification (Resend)
 
@@ -115,6 +160,29 @@ database leak alone can't be used to verify accounts.
    going live — the shared sender is rate-limited and only good for testing.
 3. Already verified but want to test again? Use "Resend verification email" from the banner, or
    just register a new test account.
+
+## Image uploads (Cloudinary)
+
+Two things can have an image, both hosted on [Cloudinary](https://cloudinary.com) via `multer`
+(in-memory, 8MB limit, images only — see `server/src/middleware/upload.ts`):
+- **Profile pictures** — any user can upload their own avatar from `/profile/:id` (self only); it
+  falls back to color-coded initials (hashed from the name) if none is set.
+- **Blog post images** — the block editor's image blocks and the post thumbnail (see "Blog post
+  editor" below).
+
+**Setup:** get `Cloud name`, `API Key`, and `API Secret` from your
+[Cloudinary dashboard](https://cloudinary.com/console) and set `CLOUDINARY_CLOUD_NAME`,
+`CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET`. Without these set, any upload attempt fails —
+there's no local/disk fallback.
+
+## Blog post editor
+
+Admin-only (`/admin/blog/new`, `/admin/blog/:id/edit`) block-based editor rather than a single
+textarea: a post is a reorderable list of `heading` / `paragraph` / `image` blocks, dragged into
+order with `@dnd-kit`, plus a separate cover thumbnail upload. The server validates and sanitizes
+the block list on save (`server/src/utils/blogBlocks.ts`), and auto-derives a plain-text excerpt
+from the heading/paragraph blocks (`server/src/utils/blogExcerpt.ts`) for use in the feed, the
+`/blog` list, and the public preview — there's no separate "excerpt" field to fill in by hand.
 
 ## Prerequisites
 
@@ -161,6 +229,14 @@ npm run dev
 
 Starts the API on `http://localhost:4000` and the Vite dev server on `http://localhost:5173`.
 
+## Sharing your local dev server
+
+`client/vite.config.ts` proxies `/api` to `http://localhost:4000` and sets `host: true` +
+`allowedHosts: true`. That means tunneling just the client port (e.g. `ngrok http 5173`, or any
+similar tool) exposes both the UI and the API through one URL — no CORS setup and no second tunnel
+needed for the server. This is the easiest way to give PayMongo's webhooks (see "Payments" and
+"Goodie Box" above) a reachable HTTPS URL while developing locally.
+
 ## Auth design note
 
 The JWT is stored in an httpOnly cookie rather than in `localStorage`, which keeps it out of
@@ -177,13 +253,19 @@ revisiting before this goes anywhere near production traffic.
    Subscription card/link — admins aren't subscribers.
 3. Promote a user to internal team (`Make internal team member`), create a group with them as
    leader, add another user as a member. A plain subscriber never shows up as a leader option.
-4. As admin, post an announcement and publish a blog post from `/feed` — both appear in every
-   member's feed.
-5. Log in as the group's leader — a "Post to [Group]" composer appears; post something. Only
-   members of that group see it in their feed; everyone else doesn't.
+4. As admin, post an announcement from `/feed`, and write a blog post from the block editor at
+   `/admin/blog/new` (add a heading, a paragraph, and an image block, drag to reorder, upload a
+   thumbnail) — both appear in every member's feed and the post is also live at `/blog`.
+5. Log in as the group's leader, open `/group`, and post something — choose "Private" (only that
+   group's members see it, on `/group`) or "Public" (also shows up in everyone's `/feed`). Try
+   both and confirm where each shows up.
 6. Like and comment on any feed item as any logged-in user; counts update live.
-7. Visit any user's `/profile/:id` to see their basic public profile.
+7. Visit any user's `/profile/:id`; as that user, edit your bio, set a custom profile URL (slug),
+   and upload an avatar — confirm the new avatar shows up in the navbar and on your posts.
 8. As the subscriber user, choose a plan on `/subscription`, complete a test-mode payment on
    PayMongo's hosted checkout page, and get redirected back — once the webhook confirms it, the
    new plan and renewal date show up. Navigating to `/subscription` as admin/internal redirects
    back to the feed.
+9. As the subscriber user, buy a Goodie Box from `/goodie-box` and complete test-mode checkout —
+   once confirmed, it shows under "My orders". As admin, open `/admin/goodie-box-orders` and
+   advance the order through `pending_delivery` → `in_progress` → `complete`.

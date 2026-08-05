@@ -40,6 +40,14 @@ export function XIcon({ className }: IconProps) {
   )
 }
 
+export function MenuIcon({ className }: IconProps) {
+  return (
+    <svg {...base} strokeWidth={1.5} className={className}>
+      <path d="M3 5h14M3 10h14M3 15h14" />
+    </svg>
+  )
+}
+
 export function SearchIcon({ className }: IconProps) {
   return (
     <svg {...base} strokeWidth={1.5} className={className}>

@@ -53,7 +53,7 @@ export function GoodieBoxOrdersTable({
   const advanceLabel = ADVANCE_LABEL[deliveryStatus]
 
   return (
-    <div className="mb-8">
+    <div>
       <h2 className="mb-3 text-sm font-medium text-slate-500">{title}</h2>
       <div className="overflow-x-auto rounded border border-slate-200">
         <table className="min-w-full text-left text-sm">
