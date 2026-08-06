@@ -1,4 +1,7 @@
 import { useState, type FormEvent } from 'react'
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
 import { createStaffUserRequest } from '../../api/users.api'
 
 const PASSWORD_CHARSET =
@@ -49,91 +52,93 @@ export function RegisterStaffModal({
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-sm rounded-lg bg-white p-5">
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent
+        className="sm:max-w-sm"
+        showCloseButton={!created}
+        onEscapeKeyDown={(e) => {
+          if (created) e.preventDefault()
+        }}
+        onInteractOutside={(e) => {
+          if (created) e.preventDefault()
+        }}
+      >
         {created ? (
           <>
-            <h2 className="mb-3 text-lg font-semibold text-slate-900">Staff account created</h2>
-            <p className="mb-3 text-sm text-slate-600">
+            <DialogHeader>
+              <DialogTitle>Staff account created</DialogTitle>
+            </DialogHeader>
+            <p className="text-sm text-muted-foreground">
               Share these credentials with them now — the password won't be shown again.
             </p>
-            <div className="mb-4 space-y-2 rounded border border-slate-200 bg-slate-50 p-3 text-sm">
+            <div className="space-y-2 rounded-md border bg-muted/50 p-3 text-sm">
               <p>
-                <span className="text-slate-500">Email:</span> {created.email}
+                <span className="text-muted-foreground">Email:</span> {created.email}
               </p>
               <p className="flex items-center gap-2">
-                <span className="text-slate-500">Password:</span>
+                <span className="text-muted-foreground">Password:</span>
                 <code className="font-mono">{created.password}</code>
               </p>
             </div>
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={copyPassword}
-                className="rounded border border-slate-300 px-3 py-1.5 text-sm text-slate-700"
-              >
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={copyPassword}>
                 Copy password
-              </button>
-              <button
-                onClick={onClose}
-                className="rounded bg-slate-900 px-3 py-1.5 text-sm text-white"
-              >
+              </Button>
+              <Button type="button" onClick={onClose}>
                 Done
-              </button>
-            </div>
+              </Button>
+            </DialogFooter>
           </>
         ) : (
           <>
-            <h2 className="mb-4 text-lg font-semibold text-slate-900">Register staff account</h2>
+            <DialogHeader>
+              <DialogTitle>Register staff account</DialogTitle>
+            </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-3">
               <div>
-                <label className="mb-1 block text-sm text-slate-600">Name</label>
-                <input
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full rounded border border-slate-300 px-3 py-2"
-                />
+                <label className="mb-1 block text-sm text-muted-foreground">Name</label>
+                <Input required value={name} onChange={(e) => setName(e.target.value)} />
               </div>
               <div>
-                <label className="mb-1 block text-sm text-slate-600">Email</label>
-                <input
+                <label className="mb-1 block text-sm text-muted-foreground">Email</label>
+                <Input
                   required
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full rounded border border-slate-300 px-3 py-2"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm text-slate-600">Role</label>
+                <label className="mb-1 block text-sm text-muted-foreground">Role</label>
                 <select
                   value={role}
                   onChange={(e) => setRole(e.target.value as 'internal' | 'admin')}
-                  className="w-full rounded border border-slate-300 px-3 py-2"
+                  className="h-9 w-full rounded-md border border-input bg-transparent px-2.5 py-1 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
                 >
                   <option value="internal">Internal Team</option>
                   <option value="admin">Admin</option>
                 </select>
               </div>
               <div>
-                <label className="mb-1 block text-sm text-slate-600">Password</label>
+                <label className="mb-1 block text-sm text-muted-foreground">Password</label>
                 <div className="flex gap-2">
-                  <input
+                  <Input
                     required
                     minLength={8}
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="At least 8 characters"
-                    className="w-full rounded border border-slate-300 px-3 py-2"
                   />
-                  <button
+                  <Button
                     type="button"
+                    variant="outline"
+                    size="sm"
+                    className="shrink-0"
                     onClick={() => setShowPassword((s) => !s)}
-                    className="shrink-0 rounded border border-slate-300 px-2 text-xs text-slate-600"
                   >
                     {showPassword ? 'Hide' : 'Show'}
-                  </button>
+                  </Button>
                 </div>
                 <button
                   type="button"
@@ -141,32 +146,24 @@ export function RegisterStaffModal({
                     setPassword(generatePassword())
                     setShowPassword(true)
                   }}
-                  className="mt-1.5 text-xs text-slate-500 underline"
+                  className="mt-1.5 text-xs text-muted-foreground underline"
                 >
                   Generate a password
                 </button>
               </div>
-              {error && <p className="text-sm text-red-600">{error}</p>}
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="rounded border border-slate-300 px-3 py-1.5 text-slate-700"
-                >
+              {error && <p className="text-sm text-destructive">{error}</p>}
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={onClose}>
                   Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="rounded bg-slate-900 px-3 py-1.5 text-white disabled:opacity-50"
-                >
+                </Button>
+                <Button type="submit" disabled={submitting}>
                   {submitting ? 'Creating...' : 'Create account'}
-                </button>
-              </div>
+                </Button>
+              </DialogFooter>
             </form>
           </>
         )}
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   )
 }

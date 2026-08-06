@@ -18,9 +18,9 @@ export function Hero() {
           You don't have to carry it alone
         </h1>
         <p className="mx-auto mt-5 max-w-xl text-lg text-slate-300">
-          Haven Circle connects you with a real peer-support group and a monthly care package at
-          your door — because healing goes better with people beside you, not just another app to
-          scroll.
+          Haven Circle places you in a private peer-support circle — a small group of people who
+          get it, with a peer support lead looking out for you. Because healing goes better with
+          people beside you, not just another app to scroll.
         </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           {user ? (

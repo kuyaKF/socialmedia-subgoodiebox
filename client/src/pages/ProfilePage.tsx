@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useParams } from 'react-router-dom'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import {
   changeMyPasswordRequest,
   getUserRequest,
@@ -7,6 +11,7 @@ import {
   uploadAvatarRequest,
 } from '../api/users.api'
 import { Avatar } from '../components/Avatar'
+import { PencilIcon } from '../components/icons'
 import { RoleBadge } from '../components/RoleBadge'
 import { useAuth } from '../context/AuthContext'
 import type { GroupRef, User } from '../types/models'
@@ -107,8 +112,8 @@ export function ProfilePage() {
     }
   }
 
-  if (loading) return <div className="mt-10 text-center text-slate-500">Loading...</div>
-  if (!profile) return <div className="mt-10 text-center text-slate-500">User not found</div>
+  if (loading) return <div className="mt-10 text-center text-muted-foreground">Loading...</div>
+  if (!profile) return <div className="mt-10 text-center text-muted-foreground">User not found</div>
 
   const group = typeof profile.group === 'object' ? (profile.group as GroupRef | null) : null
 
@@ -118,14 +123,17 @@ export function ProfilePage() {
         <div className="relative">
           <Avatar name={profile.name} avatarUrl={profile.avatarUrl} size={20} />
           {isSelf && (
-            <button
+            <Button
+              type="button"
+              variant="outline"
+              size="icon-sm"
               onClick={() => avatarInputRef.current?.click()}
               disabled={uploadingAvatar}
               title="Change profile picture"
-              className="absolute -bottom-1 -right-1 rounded-full border border-slate-300 bg-white px-1.5 py-1 text-xs shadow-sm hover:bg-slate-50 disabled:opacity-50"
+              className="absolute -bottom-1 -right-1 rounded-full bg-background shadow-sm"
             >
-              {uploadingAvatar ? '...' : '✎'}
-            </button>
+              {uploadingAvatar ? '...' : <PencilIcon className="h-3.5 w-3.5" />}
+            </Button>
           )}
           <input
             ref={avatarInputRef}
@@ -137,61 +145,55 @@ export function ProfilePage() {
         </div>
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-semibold text-slate-900">{profile.name}</h1>
+            <h1 className="text-2xl font-semibold text-foreground">{profile.name}</h1>
             <RoleBadge role={profile.role} />
           </div>
-          {profile.slug && <p className="text-sm text-slate-400">/profile/{profile.slug}</p>}
+          {profile.slug && <p className="text-sm text-muted-foreground">/profile/{profile.slug}</p>}
         </div>
       </div>
 
-      {imageError && <p className="mb-4 text-sm text-red-600">{imageError}</p>}
+      {imageError && <p className="mb-4 text-sm text-destructive">{imageError}</p>}
 
       {editing ? (
         <form onSubmit={handleSave} className="space-y-3">
           <div>
-            <label className="mb-1 block text-sm text-slate-600">Name</label>
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full rounded border border-slate-300 px-3 py-2"
-            />
+            <Label htmlFor="profile-name" className="mb-1 block text-muted-foreground">
+              Name
+            </Label>
+            <Input id="profile-name" value={name} onChange={(e) => setName(e.target.value)} />
           </div>
           <div>
-            <label className="mb-1 block text-sm text-slate-600">Bio</label>
-            <textarea
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              className="w-full rounded border border-slate-300 px-3 py-2"
-              rows={3}
-            />
+            <Label htmlFor="profile-bio" className="mb-1 block text-muted-foreground">
+              Bio
+            </Label>
+            <Textarea id="profile-bio" value={bio} onChange={(e) => setBio(e.target.value)} rows={3} />
           </div>
           <div>
-            <label className="mb-1 block text-sm text-slate-600">Profile URL</label>
+            <Label htmlFor="profile-slug" className="mb-1 block text-muted-foreground">
+              Profile URL
+            </Label>
             <div className="flex items-center gap-1.5">
-              <span className="text-sm text-slate-400">/profile/</span>
-              <input
+              <span className="text-sm text-muted-foreground">/profile/</span>
+              <Input
+                id="profile-slug"
                 value={slug}
                 onChange={(e) => setSlug(e.target.value)}
                 placeholder="your-name"
-                className="w-full rounded border border-slate-300 px-3 py-2"
               />
             </div>
-            <p className="mt-1 text-xs text-slate-400">
+            <p className="mt-1 text-xs text-muted-foreground">
               3-30 characters: lowercase letters, numbers, and hyphens only. Leave blank to remove
               your custom URL — your profile stays reachable at /profile/{profile.id} either way.
             </p>
           </div>
-          {saveError && <p className="text-sm text-red-600">{saveError}</p>}
+          {saveError && <p className="text-sm text-destructive">{saveError}</p>}
           <div className="flex gap-2">
-            <button
-              type="submit"
-              disabled={saving}
-              className="rounded bg-slate-900 px-3 py-1.5 text-white disabled:opacity-50"
-            >
+            <Button type="submit" disabled={saving}>
               {saving ? 'Saving...' : 'Save'}
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="outline"
               onClick={() => {
                 setEditing(false)
                 setSaveError(null)
@@ -199,26 +201,22 @@ export function ProfilePage() {
                 setBio(profile.bio || '')
                 setSlug(profile.slug || '')
               }}
-              className="rounded border border-slate-300 px-3 py-1.5 text-slate-700"
             >
               Cancel
-            </button>
+            </Button>
           </div>
         </form>
       ) : (
         <>
-          {profile.email && <p className="mb-1 text-slate-600">{profile.email}</p>}
-          <p className="mb-4 text-slate-700">{profile.bio || 'No bio yet.'}</p>
-          <p className="mb-4 text-sm text-slate-500">
+          {profile.email && <p className="mb-1 text-muted-foreground">{profile.email}</p>}
+          <p className="mb-4 text-foreground/80">{profile.bio || 'No bio yet.'}</p>
+          <p className="mb-4 text-sm text-muted-foreground">
             Group: {group ? group.name : 'Not yet assigned'}
           </p>
           {isSelf && (
-            <button
-              onClick={() => setEditing(true)}
-              className="rounded border border-slate-300 px-3 py-1.5 text-sm text-slate-700"
-            >
+            <Button type="button" variant="outline" size="sm" onClick={() => setEditing(true)}>
               Edit profile
-            </button>
+            </Button>
           )}
         </>
       )}
@@ -230,50 +228,54 @@ export function ProfilePage() {
           )}
           {changingPassword ? (
             <form onSubmit={handleChangePassword} className="max-w-sm space-y-3">
-              <h2 className="text-sm font-medium text-slate-900">Change password</h2>
+              <h2 className="text-sm font-medium text-foreground">Change password</h2>
               <div>
-                <label className="mb-1 block text-sm text-slate-600">Current password</label>
-                <input
+                <Label htmlFor="current-password" className="mb-1 block text-muted-foreground">
+                  Current password
+                </Label>
+                <Input
+                  id="current-password"
                   required
                   type="password"
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="w-full rounded border border-slate-300 px-3 py-2"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm text-slate-600">New password</label>
-                <input
+                <Label htmlFor="new-password" className="mb-1 block text-muted-foreground">
+                  New password
+                </Label>
+                <Input
+                  id="new-password"
                   required
                   minLength={8}
                   type="password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="At least 8 characters"
-                  className="w-full rounded border border-slate-300 px-3 py-2"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm text-slate-600">Confirm new password</label>
-                <input
+                <Label htmlFor="confirm-password" className="mb-1 block text-muted-foreground">
+                  Confirm new password
+                </Label>
+                <Input
+                  id="confirm-password"
                   required
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full rounded border border-slate-300 px-3 py-2"
                 />
               </div>
-              {passwordError && <p className="text-sm text-red-600">{passwordError}</p>}
+              {passwordError && <p className="text-sm text-destructive">{passwordError}</p>}
               <div className="flex gap-2">
-                <button
-                  type="submit"
-                  disabled={savingPassword}
-                  className="rounded bg-slate-900 px-3 py-1.5 text-sm text-white disabled:opacity-50"
-                >
+                <Button type="submit" size="sm" disabled={savingPassword}>
                   {savingPassword ? 'Saving...' : 'Update password'}
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
+                  variant="outline"
+                  size="sm"
                   onClick={() => {
                     setChangingPassword(false)
                     setPasswordError(null)
@@ -281,22 +283,23 @@ export function ProfilePage() {
                     setNewPassword('')
                     setConfirmPassword('')
                   }}
-                  className="rounded border border-slate-300 px-3 py-1.5 text-sm text-slate-700"
                 >
                   Cancel
-                </button>
+                </Button>
               </div>
             </form>
           ) : (
-            <button
+            <Button
+              type="button"
+              variant="link"
+              className="h-auto p-0 text-muted-foreground"
               onClick={() => {
                 setChangingPassword(true)
                 setPasswordSuccess(false)
               }}
-              className="text-sm text-slate-600 underline"
             >
               Change password
-            </button>
+            </Button>
           )}
         </div>
       )}

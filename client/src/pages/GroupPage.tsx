@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { Card, CardContent } from '@/components/ui/card'
 import { getGroupRequest, getMyGroupRequest } from '../api/groups.api'
 import {
   createGroupPostRequest,
@@ -96,13 +97,13 @@ export function GroupPage() {
   }
 
   if (!user) return null
-  if (groupLoading) return <div className="mt-10 text-center text-slate-500">Loading...</div>
+  if (groupLoading) return <div className="mt-10 text-center text-muted-foreground">Loading...</div>
 
   if (notFound) {
     return (
       <div className="mx-auto mt-16 max-w-md px-4 text-center">
-        <h1 className="mb-2 text-xl font-semibold text-slate-900">Group not found</h1>
-        <Link to="/admin/groups" className="text-sm font-medium text-slate-900 underline">
+        <h1 className="mb-2 text-xl font-semibold text-foreground">Group not found</h1>
+        <Link to="/admin/groups" className="text-sm font-medium text-foreground underline">
           Back to Manage Groups
         </Link>
       </div>
@@ -112,8 +113,8 @@ export function GroupPage() {
   if (notAssigned || !group) {
     return (
       <div className="mx-auto mt-16 max-w-md px-4 text-center">
-        <h1 className="mb-2 text-xl font-semibold text-slate-900">No circle yet</h1>
-        <p className="text-slate-500">
+        <h1 className="mb-2 text-xl font-semibold text-foreground">No circle yet</h1>
+        <p className="text-muted-foreground">
           You haven't been placed in a circle yet. Once an admin assigns you to one, its private
           feed will show up here.
         </p>
@@ -131,31 +132,33 @@ export function GroupPage() {
           Viewing as admin
         </p>
       )}
-      <h1 className="mb-1 text-xl font-semibold text-slate-900">{group.name}</h1>
-      <p className="mb-4 text-sm text-slate-500">A private space for this circle's members.</p>
+      <h1 className="mb-1 text-xl font-semibold text-foreground">{group.name}</h1>
+      <p className="mb-4 text-sm text-muted-foreground">A private space for this circle's members.</p>
 
-      <div className="mb-6 flex flex-wrap items-center gap-3 rounded-xl border border-slate-200 p-4">
-        {group.leader && (
-          <Link
-            to={`/profile/${group.leader._id}`}
-            className="flex items-center gap-2 rounded-full bg-slate-50 py-1 pl-1 pr-3 text-sm hover:bg-slate-100"
-          >
-            <Avatar name={group.leader.name} avatarUrl={group.leader.avatarUrl} size={7} />
-            <span className="font-medium text-slate-900">{group.leader.name}</span>
-            <span className="text-xs text-slate-400">Leader</span>
-          </Link>
-        )}
-        {group.members.map((m) => (
-          <Link
-            key={m._id}
-            to={`/profile/${m._id}`}
-            className="flex items-center gap-2 rounded-full bg-slate-50 py-1 pl-1 pr-3 text-sm hover:bg-slate-100"
-          >
-            <Avatar name={m.name} avatarUrl={m.avatarUrl} size={7} />
-            <span className="text-slate-700">{m.name}</span>
-          </Link>
-        ))}
-      </div>
+      <Card size="sm" className="mb-6">
+        <CardContent className="flex flex-wrap items-center gap-3">
+          {group.leader && (
+            <Link
+              to={`/profile/${group.leader._id}`}
+              className="flex items-center gap-2 rounded-full bg-muted/50 py-1 pl-1 pr-3 text-sm hover:bg-muted"
+            >
+              <Avatar name={group.leader.name} avatarUrl={group.leader.avatarUrl} size={7} />
+              <span className="font-medium text-foreground">{group.leader.name}</span>
+              <span className="text-xs text-muted-foreground">Leader</span>
+            </Link>
+          )}
+          {group.members.map((m) => (
+            <Link
+              key={m._id}
+              to={`/profile/${m._id}`}
+              className="flex items-center gap-2 rounded-full bg-muted/50 py-1 pl-1 pr-3 text-sm hover:bg-muted"
+            >
+              <Avatar name={m.name} avatarUrl={m.avatarUrl} size={7} />
+              <span className="text-foreground/80">{m.name}</span>
+            </Link>
+          ))}
+        </CardContent>
+      </Card>
 
       <div className="mb-6">
         <Composer
@@ -181,18 +184,18 @@ export function GroupPage() {
         ))}
       </div>
 
-      {initialLoading && <p className="py-8 text-center text-sm text-slate-400">Loading posts...</p>}
+      {initialLoading && <p className="py-8 text-center text-sm text-muted-foreground">Loading posts...</p>}
       {!initialLoading && items.length === 0 && (
-        <p className="py-8 text-center text-sm text-slate-400">
+        <p className="py-8 text-center text-sm text-muted-foreground">
           Nothing here yet. Post something to get things started.
         </p>
       )}
       <div ref={sentinelRef} className="h-4" />
       {loading && !initialLoading && (
-        <p className="py-4 text-center text-sm text-slate-400">Loading more...</p>
+        <p className="py-4 text-center text-sm text-muted-foreground">Loading more...</p>
       )}
       {!hasMore && items.length > 0 && (
-        <p className="py-4 text-center text-xs text-slate-300">You're all caught up.</p>
+        <p className="py-4 text-center text-xs text-muted-foreground/70">You're all caught up.</p>
       )}
     </div>
   )

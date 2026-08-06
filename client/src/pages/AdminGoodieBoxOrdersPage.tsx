@@ -10,7 +10,7 @@ export function AdminGoodieBoxOrdersPage() {
 
   return (
     <div className="mx-auto mt-10 max-w-6xl px-4 pb-16">
-      <h1 className="mb-6 text-2xl font-semibold text-slate-900">Goodie Box Orders</h1>
+      <h1 className="mb-6 text-2xl font-semibold text-foreground">Goodie Box Orders</h1>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <GoodieBoxOrdersTable

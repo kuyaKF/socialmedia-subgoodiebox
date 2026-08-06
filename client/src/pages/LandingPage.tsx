@@ -1,5 +1,6 @@
 import { BlogPreview } from '../components/landing/BlogPreview'
 import { FAQ } from '../components/landing/FAQ'
+import { GoodieBoxTeaser } from '../components/landing/GoodieBoxTeaser'
 import { Hero } from '../components/landing/Hero'
 import { Introduction } from '../components/landing/Introduction'
 import { LandingFooter } from '../components/landing/LandingFooter'
@@ -14,6 +15,7 @@ export function LandingPage() {
       <Introduction />
       <WhyJoin />
       <SubscriptionTiers />
+      <GoodieBoxTeaser />
       <FAQ />
       <BlogPreview />
       <Newsletter />

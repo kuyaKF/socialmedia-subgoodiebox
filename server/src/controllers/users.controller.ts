@@ -86,6 +86,7 @@ export const getUser = asyncHandler(async (req: Request, res: Response) => {
   const isSelf = req.user!.id === user.id;
   const canSeeEmail = isSelf || req.user!.role === 'admin';
   const response = user.toObject() as unknown as Record<string, unknown>;
+  response.id = user.id;
   if (!canSeeEmail) {
     delete response.email;
   }
@@ -123,7 +124,7 @@ export const updateMe = asyncHandler(async (req: Request, res: Response) => {
     }
   }
   await user.save();
-  res.json({ user: { ...user.toObject(), passwordHash: undefined } });
+  res.json({ user: { ...user.toObject(), id: user.id, passwordHash: undefined } });
 });
 
 const VALID_ROLES: UserRole[] = ['user', 'internal', 'admin'];
@@ -139,7 +140,7 @@ export const updateUserRole = asyncHandler(async (req: Request, res: Response) =
   }
   user.role = role;
   await user.save();
-  res.json({ user: { ...user.toObject(), passwordHash: undefined } });
+  res.json({ user: { ...user.toObject(), id: user.id, passwordHash: undefined } });
 });
 
 const VALID_STAFF_ROLES: UserRole[] = ['internal', 'admin'];
@@ -169,7 +170,7 @@ export const createStaffUser = asyncHandler(async (req: Request, res: Response) 
     passwordHash: password,
     role: role ?? 'internal',
   });
-  res.status(201).json({ user: { ...user.toObject(), passwordHash: undefined } });
+  res.status(201).json({ user: { ...user.toObject(), id: user.id, passwordHash: undefined } });
 });
 
 export const changeMyPassword = asyncHandler(async (req: Request, res: Response) => {

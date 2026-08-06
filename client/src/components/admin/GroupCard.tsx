@@ -1,10 +1,12 @@
 import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import type { Group, User } from '../../types/models'
+import { extractErrorMessage } from '../../utils/errors'
 import { Avatar } from '../Avatar'
 import { CheckIcon, PencilIcon, TrashIcon, XIcon } from '../icons'
 import { SearchableSelect } from '../SearchableSelect'
-import type { Group, User } from '../../types/models'
-import { extractErrorMessage } from '../../utils/errors'
 
 export function GroupCard({
   group,
@@ -63,92 +65,99 @@ export function GroupCard({
   }
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
+    <div className="rounded-xl border bg-card p-5 shadow-sm transition-shadow hover:shadow-md">
       <div className="mb-4 flex items-start justify-between gap-2">
         <div className="flex min-w-0 items-center gap-3">
           <Avatar name={group.name} size={9} />
           {editingName ? (
             <form onSubmit={submitRename} className="min-w-0">
               <div className="flex items-center gap-1">
-                <input
+                <Input
                   autoFocus
                   value={draftName}
                   onChange={(e) => setDraftName(e.target.value)}
                   disabled={saving}
-                  className="w-full min-w-0 rounded border border-slate-300 px-2 py-1 text-sm font-semibold text-slate-900"
+                  className="h-8 w-full min-w-0 font-semibold"
                 />
-                <button
+                <Button
                   type="submit"
+                  variant="ghost"
+                  size="icon-sm"
                   disabled={saving}
                   title="Save"
-                  className="shrink-0 rounded p-1 text-emerald-600 hover:bg-emerald-50"
+                  className="text-emerald-600 hover:bg-emerald-50 hover:text-emerald-600"
                 >
                   <CheckIcon className="h-4 w-4" />
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="icon-sm"
                   onClick={cancelEdit}
                   disabled={saving}
                   title="Cancel"
-                  className="shrink-0 rounded p-1 text-slate-400 hover:bg-slate-100"
                 >
                   <XIcon className="h-4 w-4" />
-                </button>
+                </Button>
               </div>
-              {renameError && <p className="mt-1 text-xs text-red-600">{renameError}</p>}
+              {renameError && <p className="mt-1 text-xs text-destructive">{renameError}</p>}
             </form>
           ) : (
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
-                <h3 className="truncate text-lg font-semibold text-slate-900">{group.name}</h3>
-                <button
+                <h3 className="truncate text-lg font-semibold text-foreground">{group.name}</h3>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
                   onClick={startEdit}
                   title="Rename group"
-                  className="shrink-0 rounded p-1 text-slate-300 hover:bg-slate-100 hover:text-slate-500"
                 >
                   <PencilIcon className="h-3.5 w-3.5" />
-                </button>
+                </Button>
               </div>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-muted-foreground">
                 {group.members.length} member{group.members.length === 1 ? '' : 's'}
               </p>
             </div>
           )}
         </div>
         <div className="flex shrink-0 items-center gap-1">
-          <Link
-            to={`/admin/groups/${group._id}/feed`}
-            className="rounded px-2 py-1 text-xs font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-700"
-          >
-            View feed
-          </Link>
-          <button
+          <Button type="button" variant="ghost" size="sm" asChild>
+            <Link to={`/admin/groups/${group._id}/feed`}>View feed</Link>
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
             onClick={() => onDelete(group._id)}
             title="Delete group"
-            className="shrink-0 rounded p-1.5 text-slate-300 hover:bg-red-50 hover:text-red-600"
+            className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
           >
             <TrashIcon className="h-4 w-4" />
-          </button>
+          </Button>
         </div>
       </div>
 
       <div className="mb-4">
-        <p className="mb-1.5 text-xs font-medium uppercase tracking-wide text-slate-400">Leader</p>
+        <p className="mb-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          Leader
+        </p>
         {group.leader ? (
-          <div className="flex items-center gap-2 rounded-lg bg-slate-50 px-2.5 py-2">
+          <div className="flex items-center gap-2 rounded-lg bg-muted/50 px-2.5 py-2">
             <Avatar name={group.leader.name} avatarUrl={group.leader.avatarUrl} size={7} />
             <div className="min-w-0">
               <Link
                 to={`/profile/${group.leader._id}`}
-                className="block truncate text-sm font-medium text-slate-900 hover:underline"
+                className="block truncate text-sm font-medium text-foreground hover:underline"
               >
                 {group.leader.name}
               </Link>
-              <p className="truncate text-xs text-slate-500">{group.leader.email}</p>
+              <p className="truncate text-xs text-muted-foreground">{group.leader.email}</p>
             </div>
           </div>
         ) : (
-          <p className="text-sm italic text-slate-400">No leader assigned</p>
+          <p className="text-sm italic text-muted-foreground">No leader assigned</p>
         )}
         {leaderCandidates.length > 0 && (
           <SearchableSelect
@@ -165,7 +174,7 @@ export function GroupCard({
       </div>
 
       <div>
-        <p className="mb-1.5 text-xs font-medium uppercase tracking-wide text-slate-400">
+        <p className="mb-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
           Members ({group.members.length})
         </p>
         {group.members.length > 0 && (
@@ -173,33 +182,36 @@ export function GroupCard({
             {group.members.map((m) => (
               <li
                 key={m._id}
-                className="group/member flex items-center justify-between gap-2 rounded-lg px-1.5 py-1.5 hover:bg-slate-50"
+                className="group/member flex items-center justify-between gap-2 rounded-lg px-1.5 py-1.5 hover:bg-muted/50"
               >
                 <div className="flex min-w-0 items-center gap-2">
                   <Avatar name={m.name} avatarUrl={m.avatarUrl} size={7} />
                   <div className="min-w-0">
                     <Link
                       to={`/profile/${m._id}`}
-                      className="block truncate text-sm text-slate-900 hover:underline"
+                      className="block truncate text-sm text-foreground hover:underline"
                     >
                       {m.name}
                     </Link>
-                    <p className="truncate text-xs text-slate-400">{m.email}</p>
+                    <p className="truncate text-xs text-muted-foreground">{m.email}</p>
                   </div>
                 </div>
-                <button
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
                   onClick={() => onRemoveMember(group._id, m._id)}
                   title="Remove member"
-                  className="shrink-0 rounded p-1 text-slate-300 opacity-0 hover:bg-red-50 hover:text-red-600 group-hover/member:opacity-100"
+                  className="shrink-0 opacity-0 hover:bg-destructive/10 hover:text-destructive group-hover/member:opacity-100"
                 >
                   <XIcon className="h-3.5 w-3.5" />
-                </button>
+                </Button>
               </li>
             ))}
           </ul>
         )}
         {group.members.length === 0 && (
-          <p className="mb-2 text-sm italic text-slate-400">No members yet.</p>
+          <p className="mb-2 text-sm italic text-muted-foreground">No members yet.</p>
         )}
         {unassignedUsers.length > 0 && (
           <SearchableSelect

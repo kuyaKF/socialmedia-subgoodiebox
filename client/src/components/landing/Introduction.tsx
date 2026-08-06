@@ -1,20 +1,20 @@
-import { GiftIcon, SparklesIcon, UsersIcon } from '../icons'
+import { HeartIcon, SparklesIcon, UsersIcon } from '../icons'
 
 const POINTS = [
   {
     icon: UsersIcon,
     title: 'Real people, not just a feed',
-    body: "You're placed in a small support circle with a peer lead looking out for you — never left to scroll alone with what you're going through.",
+    body: "A membership places you in a small support circle with a peer lead looking out for you — never left to scroll alone with what you're going through.",
   },
   {
-    icon: GiftIcon,
-    title: 'A care package at your door',
-    body: 'Every active membership ships a thoughtfully put-together comfort box each month — a tangible reminder that someone is thinking of you, even on the hard days.',
+    icon: HeartIcon,
+    title: 'A lead who actually knows you',
+    body: "Every circle has a peer support lead checking in and looking out for its members — not an algorithm, an actual person.",
   },
   {
     icon: SparklesIcon,
     title: 'Built to grow with you',
-    body: 'Circles, care packages, and a support feed today — more mental health resources and community tools are on the way.',
+    body: 'Circles and a support feed today — more mental health resources and community tools are on the way.',
   },
 ]
 
@@ -26,9 +26,10 @@ export function Introduction() {
           What is Haven Circle?
         </h2>
         <p className="mt-4 text-slate-600">
-          We're a peer-support community built around mental health awareness. Join, get placed
-          in a small circle of people who get it, and receive a little something in the mail
-          every month as a reminder that you're not going through this alone.
+          We're a peer-support community built around mental health awareness. Subscribe to get
+          placed in a small circle of people who get it, with a peer support lead looking out for
+          you. Want a comfort box without joining a circle? The Goodie Box is a separate one-time
+          purchase — no subscription needed.
         </p>
       </div>
       <div className="grid gap-6 sm:grid-cols-3">

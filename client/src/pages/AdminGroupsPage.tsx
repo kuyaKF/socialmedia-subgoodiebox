@@ -11,6 +11,7 @@ import {
 import { listUsersRequest } from '../api/users.api'
 import { GroupsBrowser } from '../components/admin/GroupsBrowser'
 import { UsersBrowser } from '../components/admin/UsersBrowser'
+import { Skeleton } from '../components/ui/skeleton'
 import type { Group, User } from '../types/models'
 
 // Large enough to treat as "all" for filter dropdowns/candidate lists — this boilerplate
@@ -76,19 +77,27 @@ export function AdminGroupsPage() {
     await refreshAfterChange()
   }
 
-  if (loading) return <div className="mt-10 text-center text-slate-500">Loading...</div>
+  if (loading) {
+    return (
+      <div className="mx-auto mt-10 max-w-6xl space-y-3 px-4">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-32 w-full" />
+        <Skeleton className="h-32 w-full" />
+      </div>
+    )
+  }
 
   return (
     <div className="mx-auto mt-10 max-w-6xl px-4">
-      <h1 className="mb-6 text-2xl font-semibold text-slate-900">Manage Groups</h1>
+      <h1 className="mb-6 text-2xl font-semibold text-foreground">Manage Groups</h1>
 
       <div className="mb-8">
-        <h2 className="mb-2 text-sm font-medium text-slate-500">All Users</h2>
+        <h2 className="mb-2 text-sm font-medium text-muted-foreground">All Users</h2>
         <UsersBrowser groups={allGroups} onUserChanged={loadSharedData} />
       </div>
 
       <div>
-        <h2 className="mb-2 text-sm font-medium text-slate-500">Groups</h2>
+        <h2 className="mb-2 text-sm font-medium text-muted-foreground">Groups</h2>
         <GroupsBrowser
           leaderCandidates={leaderCandidates}
           unassignedUsers={paidUnassignedUsers}
