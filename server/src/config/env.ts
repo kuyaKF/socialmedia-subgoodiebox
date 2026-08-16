@@ -23,6 +23,13 @@ export const env = {
   paymongoSecretKey: process.env.PAYMONGO_SECRET_KEY,
   paymongoWebhookSecret: process.env.PAYMONGO_WEBHOOK_SECRET,
   paymongoGoodieBoxWebhookSecret: process.env.PAYMONGO_GOODIE_BOX_WEBHOOK_SECRET,
+  // Recurring billing (PayMongo Subscriptions API) — optional. The app must still boot before
+  // PayMongo support enables Subscriptions on the account and the Plan resources exist; endpoints
+  // that need these fail loudly with a specific error instead (see config/plans.ts).
+  paymongoSubscriptionWebhookSecret: process.env.PAYMONGO_SUBSCRIPTION_WEBHOOK_SECRET,
+  paymongoPlanIdStarter: process.env.PAYMONGO_PLAN_ID_STARTER,
+  paymongoPlanIdPlus: process.env.PAYMONGO_PLAN_ID_PLUS,
+  paymongoPlanIdPremium: process.env.PAYMONGO_PLAN_ID_PREMIUM,
   resendApiKey: process.env.RESEND_API_KEY,
   // Resend's shared test sender — works with no domain setup, good for local dev.
   // Swap to a verified sender on your own domain before going live.

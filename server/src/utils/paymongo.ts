@@ -86,6 +86,136 @@ export async function createCheckoutSession(
   return json.data as CheckoutSessionResource;
 }
 
+// --- Recurring billing (Subscriptions API) ---
+//
+// Used only by the opt-in auto-renew path (card/Maya) layered on top of the one-time Checkout
+// Session flow above. Never accepts or forwards raw card fields — payment methods are tokenized
+// client-side via PayMongo's public key and only a payment_method_id ever reaches this server,
+// preserving the same zero-PCI-scope posture as the hosted Checkout Session flow.
+
+interface PayMongoResource {
+  id: string;
+  attributes: Record<string, unknown>;
+}
+
+async function paymongoRequest<T extends PayMongoResource>(
+  method: 'GET' | 'POST' | 'DELETE',
+  path: string,
+  attributes?: Record<string, unknown>
+): Promise<T> {
+  const res = await fetch(`${PAYMONGO_API}${path}`, {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: authHeader(),
+    },
+    body: attributes !== undefined ? JSON.stringify({ data: { attributes } }) : undefined,
+  });
+
+  const json = (await res.json()) as { data?: T; errors?: { detail?: string }[] };
+  if (!res.ok) {
+    const message = json?.errors?.[0]?.detail || `PayMongo request failed with status ${res.status}`;
+    throw new PayMongoError(res.status, message);
+  }
+  return json.data as T;
+}
+
+export interface CreatePlanInput {
+  name: string;
+  description: string;
+  amount: number;
+  currency: string;
+  interval: 'weekly' | 'monthly' | 'yearly';
+  intervalCount: number;
+  planType?: 'scheduled' | 'on_demand';
+  cycleCount?: number;
+  metadata?: Record<string, string>;
+}
+
+export async function createPlan(input: CreatePlanInput): Promise<PayMongoResource> {
+  return paymongoRequest('POST', '/subscriptions/plans', {
+    name: input.name,
+    description: input.description,
+    amount: input.amount,
+    currency: input.currency,
+    interval: input.interval,
+    interval_count: input.intervalCount,
+    plan_type: input.planType ?? 'scheduled',
+    cycle_count: input.cycleCount,
+    metadata: input.metadata,
+  });
+}
+
+export interface CreateCustomerInput {
+  firstName: string;
+  lastName: string;
+  email: string;
+  defaultDevice: 'phone' | 'email';
+  phone?: string;
+}
+
+export async function createCustomer(input: CreateCustomerInput): Promise<PayMongoResource> {
+  return paymongoRequest('POST', '/customers', {
+    first_name: input.firstName,
+    last_name: input.lastName,
+    email: input.email,
+    default_device: input.defaultDevice,
+    phone: input.phone,
+  });
+}
+
+export interface CreateSubscriptionInput {
+  customerId: string;
+  planId: string;
+  metadata?: Record<string, string>;
+}
+
+// NOTE: whether the Subscriptions API accepts a payment_method_id directly here, or strictly
+// relies on the customer's already-attached/default payment method, was not confirmed against a
+// live sandbox response as of writing — verify before relying on this in the calling controller.
+export async function createSubscription(input: CreateSubscriptionInput): Promise<PayMongoResource> {
+  return paymongoRequest('POST', '/subscriptions', {
+    customer_id: input.customerId,
+    plan_id: input.planId,
+    metadata: input.metadata,
+  });
+}
+
+export async function cancelSubscription(subscriptionId: string): Promise<PayMongoResource> {
+  return paymongoRequest('POST', `/subscriptions/${subscriptionId}/cancel`);
+}
+
+export async function listCustomerPaymentMethods(customerId: string): Promise<PayMongoResource[]> {
+  const res = await fetch(`${PAYMONGO_API}/customers/${customerId}/payment_methods`, {
+    method: 'GET',
+    headers: { Authorization: authHeader() },
+  });
+  const json = (await res.json()) as {
+    data?: PayMongoResource[];
+    errors?: { detail?: string }[];
+  };
+  if (!res.ok) {
+    const message = json?.errors?.[0]?.detail || `PayMongo request failed with status ${res.status}`;
+    throw new PayMongoError(res.status, message);
+  }
+  return json.data ?? [];
+}
+
+export async function deleteCustomerPaymentMethod(
+  customerId: string,
+  paymentMethodId: string
+): Promise<void> {
+  const res = await fetch(
+    `${PAYMONGO_API}/customers/${customerId}/payment_methods/${paymentMethodId}`,
+    { method: 'DELETE', headers: { Authorization: authHeader() } }
+  );
+  if (!res.ok) {
+    const json = (await res.json()) as { errors?: { detail?: string }[] };
+    const message = json?.errors?.[0]?.detail || `PayMongo request failed with status ${res.status}`;
+    throw new PayMongoError(res.status, message);
+  }
+}
+
 export interface PayMongoEvent {
   data: {
     id: string;

@@ -4,7 +4,7 @@ import { SLUG_MAX, SLUG_MIN, SLUG_PATTERN } from '../utils/slug';
 
 export type UserRole = 'user' | 'internal' | 'admin';
 export type SubscriptionPlan = 'free' | 'starter' | 'plus' | 'premium';
-export type SubscriptionStatus = 'active' | 'inactive';
+export type SubscriptionStatus = 'active' | 'inactive' | 'past_due';
 
 export interface IUser extends Document {
   email: string;
@@ -19,6 +19,10 @@ export interface IUser extends Document {
     plan: SubscriptionPlan;
     status: SubscriptionStatus;
     currentPeriodEnd: Date | null;
+    // Set only when this user has an active PayMongo-driven recurring (auto-renew) subscription —
+    // absence means they're on the manual one-time-checkout renewal path.
+    paymongoCustomerId: string | null;
+    paymongoSubscriptionId: string | null;
   };
   emailVerified: boolean;
   emailVerificationTokenHash: string | null;
@@ -47,8 +51,10 @@ const userSchema = new Schema<IUser>(
     group: { type: Schema.Types.ObjectId, ref: 'Group', default: null },
     subscription: {
       plan: { type: String, enum: ['free', 'starter', 'plus', 'premium'], default: 'free' },
-      status: { type: String, enum: ['active', 'inactive'], default: 'active' },
+      status: { type: String, enum: ['active', 'inactive', 'past_due'], default: 'active' },
       currentPeriodEnd: { type: Date, default: null },
+      paymongoCustomerId: { type: String, default: null },
+      paymongoSubscriptionId: { type: String, default: null },
     },
     emailVerified: { type: Boolean, default: false },
     emailVerificationTokenHash: { type: String, default: null, select: false },

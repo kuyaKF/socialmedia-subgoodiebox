@@ -38,7 +38,7 @@ export const createGoodieBoxCheckout = asyncHandler(async (req: Request, res: Re
           quantity: 1,
         },
       ],
-      paymentMethodTypes: ['card'],
+      paymentMethodTypes: ['card', 'gcash', 'qrph'],
       successUrl: `${env.clientUrl}/goodie-box?checkout=success`,
       cancelUrl: `${env.clientUrl}/goodie-box?checkout=cancelled`,
       description: GOODIE_BOX_LABEL,

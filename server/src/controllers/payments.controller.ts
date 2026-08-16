@@ -36,7 +36,7 @@ export const createCheckout = asyncHandler(async (req: Request, res: Response) =
           quantity: 1,
         },
       ],
-      paymentMethodTypes: ['card'],
+      paymentMethodTypes: ['card', 'gcash', 'qrph'],
       successUrl: `${env.clientUrl}/subscription?checkout=success`,
       cancelUrl: `${env.clientUrl}/subscription?checkout=cancelled`,
       description: `Subscription upgrade to ${PLAN_LABELS[plan]}`,
