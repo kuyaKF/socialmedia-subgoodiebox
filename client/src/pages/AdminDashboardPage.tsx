@@ -145,6 +145,10 @@ export function AdminDashboardPage() {
     ...s,
     label: DELIVERY_STATUS_LABELS[s.status],
   }))
+  const goodieBoxRevenueByDayData = stats.goodieBoxRevenueByDay.map((r) => ({
+    ...r,
+    label: formatDayLabel(r.day),
+  }))
 
   return (
     <div className="mx-auto mt-10 max-w-6xl px-4 pb-16">
@@ -333,9 +337,21 @@ export function AdminDashboardPage() {
               </ChartContainer>
             </ChartCard>
 
-            <ChartCard title="Orders by delivery status" className="lg:col-span-2">
-              <div className="flex flex-col items-center gap-6 sm:flex-row">
-                <ChartContainer config={CHART_CONFIG} className="aspect-auto h-[240px] w-full sm:w-1/2">
+            <ChartCard title={`Goodie Box revenue per day · ${currentMonthLabel}`}>
+              <ChartContainer config={CHART_CONFIG} className="aspect-auto h-[260px] w-full">
+                <BarChart data={goodieBoxRevenueByDayData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="label" tick={{ fontSize: 12 }} />
+                  <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => `₱${v}`} />
+                  <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                  <Bar dataKey="revenue" fill="var(--color-revenue)" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ChartContainer>
+            </ChartCard>
+
+            <ChartCard title="Orders by delivery status">
+              <div className="flex flex-col items-center gap-6">
+                <ChartContainer config={CHART_CONFIG} className="aspect-auto h-[240px] w-full">
                   <PieChart>
                     <Pie
                       data={goodieBoxStatusData}

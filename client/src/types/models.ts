@@ -173,6 +173,7 @@ export interface AdminStats {
   goodieBoxRevenueByMonth: { month: string; revenue: number }[]
   goodieBoxOrdersByMonth: { month: string; count: number }[]
   goodieBoxOrdersByDeliveryStatus: { status: GoodieBoxDeliveryStatus; count: number }[]
+  goodieBoxRevenueByDay: { day: string; revenue: number }[]
 }
 
 export type GoodieBoxPaymentStatus = 'pending' | 'paid' | 'failed' | 'expired'

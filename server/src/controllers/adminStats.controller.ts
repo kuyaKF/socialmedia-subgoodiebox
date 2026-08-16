@@ -264,8 +264,14 @@ export const getAdminStats = asyncHandler(async (_req: Request, res: Response) =
   const goodieBoxRevenueByDayMap = new Map<string, number>(
     goodieBoxRevenueByDayRows.map((r) => [r._id, r.revenue])
   );
-  const currentMonthGoodieBoxRevenue =
-    dayKeys.reduce((sum, day) => sum + (goodieBoxRevenueByDayMap.get(day) || 0), 0) / 100;
+  const goodieBoxRevenueByDay = dayKeys.map((day) => ({
+    day,
+    revenue: (goodieBoxRevenueByDayMap.get(day) || 0) / 100,
+  }));
+  const currentMonthGoodieBoxRevenue = goodieBoxRevenueByDay.reduce(
+    (sum, r) => sum + r.revenue,
+    0
+  );
 
   res.json({
     totalUsers,
@@ -288,5 +294,6 @@ export const getAdminStats = asyncHandler(async (_req: Request, res: Response) =
     goodieBoxRevenueByMonth,
     goodieBoxOrdersByMonth,
     goodieBoxOrdersByDeliveryStatus,
+    goodieBoxRevenueByDay,
   });
 });
