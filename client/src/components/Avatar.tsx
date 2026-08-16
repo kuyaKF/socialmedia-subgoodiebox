@@ -5,10 +5,12 @@ export function Avatar({
   name,
   avatarUrl,
   size = 8,
+  className = '',
 }: {
   name: string
   avatarUrl?: string
   size?: 7 | 8 | 9 | 20
+  className?: string
 }) {
   const [imgError, setImgError] = useState(false)
   const sizeClasses = {
@@ -24,14 +26,14 @@ export function Avatar({
         src={avatarUrl}
         alt={name}
         onError={() => setImgError(true)}
-        className={`shrink-0 rounded-full object-cover ${sizeClasses}`}
+        className={`shrink-0 rounded-full object-cover ${sizeClasses} ${className}`}
       />
     )
   }
 
   return (
     <div
-      className={`flex shrink-0 items-center justify-center rounded-full font-semibold ${sizeClasses} ${avatarColor(name)}`}
+      className={`flex shrink-0 items-center justify-center rounded-full font-semibold ${sizeClasses} ${avatarColor(name)} ${className}`}
     >
       {initials(name)}
     </div>

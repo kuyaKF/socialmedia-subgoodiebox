@@ -16,45 +16,47 @@ export function BlogPreview() {
   if (posts.length === 0) return null
 
   return (
-    <section className="mx-auto max-w-5xl px-4 py-20">
-      <div className="mb-10 flex items-end justify-between">
+    <section className="bg-wash-blue px-4 py-20">
+      <div className="mx-auto mb-10 flex max-w-5xl flex-wrap items-end justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight text-slate-900">From our journal</h2>
-          <p className="mt-2 text-slate-600">
+          <h2 className="font-body text-3xl font-extrabold tracking-tight text-[#2C4870] sm:text-4xl">
+            From our journal
+          </h2>
+          <p className="font-body mt-2 text-[15px] text-[#4B5A73]">
             Reflections, resources, and updates from the Haven Circle team.
           </p>
         </div>
-        <Link to="/blog" className="hidden text-sm font-medium text-slate-900 underline sm:block">
+        <Link to="/blog" className="font-body hidden text-sm font-semibold text-[#2C4870] underline sm:block">
           View all posts
         </Link>
       </div>
-      <div className="grid gap-6 sm:grid-cols-3">
+      <div className="mx-auto grid max-w-5xl gap-6 sm:grid-cols-3">
         {posts.map((post) => (
           <Link
             key={post._id}
             to={`/blog/${post._id}`}
-            className="overflow-hidden rounded-xl border border-slate-200 transition-shadow hover:shadow-md"
+            className="stationery-card block overflow-hidden rounded-2xl transition-transform hover:-translate-y-1"
           >
             {post.thumbnailUrl ? (
               <img src={post.thumbnailUrl} alt="" className="h-40 w-full object-cover" />
             ) : (
-              <div className="flex h-40 w-full items-center justify-center bg-slate-100">
-                <BookIcon className="h-8 w-8 text-slate-300" />
+              <div className="flex h-40 w-full items-center justify-center bg-[#7FB3CC]/15">
+                <BookIcon className="h-8 w-8 text-[#4B5A73]" />
               </div>
             )}
             <div className="p-5">
-              <p className="mb-2 text-xs text-slate-400">
+              <p className="font-body mb-2 text-xs text-[#4B5A73]">
                 {new Date(post.createdAt).toLocaleDateString()}
               </p>
-              <h3 className="mb-1.5 font-semibold text-slate-900">{post.title}</h3>
-              <p className="text-sm text-slate-600">{post.excerpt}</p>
+              <h3 className="font-body mb-1.5 font-bold text-[#2C4870]">{post.title}</h3>
+              <p className="font-body text-sm text-[#4B5A73]">{post.excerpt}</p>
             </div>
           </Link>
         ))}
       </div>
       <Link
         to="/blog"
-        className="mt-6 block text-center text-sm font-medium text-slate-900 underline sm:hidden"
+        className="font-body mt-8 block text-center text-sm font-semibold text-[#2C4870] underline sm:hidden"
       >
         View all posts
       </Link>

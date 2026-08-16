@@ -4,10 +4,12 @@ import { Navbar } from './Navbar'
 
 export function SiteLayout() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="flex min-h-screen flex-col bg-white">
       <Navbar />
       <EmailVerificationBanner />
-      <Outlet />
+      <div className="flex flex-1 flex-col">
+        <Outlet />
+      </div>
     </div>
   )
 }

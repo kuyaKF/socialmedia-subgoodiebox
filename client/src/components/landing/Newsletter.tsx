@@ -24,35 +24,35 @@ export function Newsletter() {
   }
 
   return (
-    <section className="bg-slate-900 py-16">
-      <div className="mx-auto max-w-2xl px-4 text-center">
-        <h2 className="text-2xl font-bold tracking-tight text-white">Stay connected</h2>
-        <p className="mt-3 text-slate-300">
+    <section className="bg-[#2C4870] px-4 py-16">
+      <div className="stationery-card mx-auto max-w-lg rounded-[1.75rem] px-8 py-9 text-center">
+        <h2 className="font-body text-2xl font-extrabold text-[#2C4870]">Stay connected</h2>
+        <p className="font-body mt-3 text-sm leading-relaxed text-[#4B5A73]">
           Get gentle updates on new Goodie Box themes, mental health resources, and community
           news. No spam, ever.
         </p>
         {status === 'done' ? (
-          <p className="mt-6 text-sm font-medium text-emerald-400">{message}</p>
+          <p className="font-body mt-6 text-sm font-semibold text-[#2C4870]">{message}</p>
         ) : (
-          <form onSubmit={handleSubmit} className="mx-auto mt-6 flex max-w-md gap-2">
+          <form onSubmit={handleSubmit} className="mx-auto mt-6 flex max-w-sm gap-2">
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="w-full rounded-lg border border-white/20 bg-white/10 px-4 py-2.5 text-sm text-white placeholder-slate-400 focus:border-white/40 focus:outline-none"
+              className="font-body w-full rounded-full border border-[#2C4870]/20 bg-white px-4 py-2.5 text-sm text-[#2C4870] placeholder-[#4B5A73] focus:border-[#2C4870] focus:outline-none"
             />
             <button
               type="submit"
               disabled={status === 'submitting'}
-              className="shrink-0 rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-slate-900 hover:bg-slate-100 disabled:opacity-50"
+              className="font-body shrink-0 rounded-full bg-[#2C4870] px-5 py-2.5 text-sm font-semibold text-[#FFFDF9] transition-transform hover:-translate-y-0.5 disabled:opacity-50"
             >
               {status === 'submitting' ? 'Subscribing...' : 'Subscribe'}
             </button>
           </form>
         )}
-        {status === 'error' && <p className="mt-3 text-sm text-red-400">{message}</p>}
+        {status === 'error' && <p className="font-body mt-3 text-sm text-[#B23A5C]">{message}</p>}
       </div>
     </section>
   )

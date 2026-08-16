@@ -12,7 +12,7 @@ const QUESTIONS = [
   },
   {
     q: 'How do support circles work?',
-    a: "When you join, you land in an unassigned pool until we place you in a circle. Each circle has a peer support lead — a trained team member or admin — looking out for its members.",
+    a: 'When you join, you land in an unassigned pool until we place you in a circle. Each circle has a peer support lead — a trained team member or admin — looking out for its members.',
   },
   {
     q: 'Can I change my plan later?',
@@ -36,26 +36,36 @@ export function FAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(0)
 
   return (
-    <section id="faq" className="mx-auto max-w-3xl px-4 py-20">
-      <h2 className="mb-10 text-center text-3xl font-bold tracking-tight text-slate-900">
+    <section id="faq" className="bg-[#FFFDF9] px-4 py-20">
+      <h2 className="font-body mb-10 text-center text-3xl font-extrabold tracking-tight text-[#2C4870] sm:text-4xl">
         Frequently asked questions
       </h2>
-      <div className="divide-y divide-slate-200 rounded-xl border border-slate-200">
+      <div className="mx-auto flex max-w-2xl flex-col gap-3">
         {QUESTIONS.map((item, i) => {
           const isOpen = openIndex === i
+          const isCrisisNote = item.q.toLowerCase().includes('crisis')
           return (
-            <div key={item.q}>
+            <div
+              key={item.q}
+              className={`stationery-card overflow-hidden rounded-2xl transition-shadow duration-300 ${isOpen ? 'shadow-[0_16px_32px_rgba(44,72,112,0.18)]' : ''} ${isCrisisNote ? 'ring-2 ring-[#E888A0]/60' : ''}`}
+            >
               <button
                 onClick={() => setOpenIndex(isOpen ? null : i)}
                 aria-expanded={isOpen}
-                className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left"
+                className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition-colors hover:bg-[#2C4870]/5"
               >
-                <span className="font-medium text-slate-900">{item.q}</span>
+                <span className="font-body text-sm font-bold text-[#2C4870]">{item.q}</span>
                 <ChevronDownIcon
-                  className={`h-5 w-5 shrink-0 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+                  className={`h-5 w-5 shrink-0 text-[#4B5A73] transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
                 />
               </button>
-              {isOpen && <p className="px-5 pb-4 text-sm text-slate-600">{item.a}</p>}
+              <div className={`faq-panel ${isOpen ? 'is-open' : ''}`}>
+                <div>
+                  <p className="font-body px-5 pb-4 text-sm leading-relaxed text-[#4B5A73]">
+                    {item.a}
+                  </p>
+                </div>
+              </div>
             </div>
           )
         })}

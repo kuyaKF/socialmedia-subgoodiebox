@@ -136,3 +136,109 @@ body {
     @apply font-sans;
   }
 }
+
+/*
+  Homepage-only "Watercolor Stationery" world (see PRODUCT.md / the direction
+  contract in index.html). Deliberately outside the shared @theme tokens
+  above — those belong to the admin dashboard's shadcn system.
+
+  Rule of thumb: the wash utilities below are section BACKGROUNDS only —
+  text (including the script wordmark) always lives on an opaque
+  .stationery-card surface, never directly on a wash. That keeps contrast
+  verifiable regardless of how many gradient layers a wash stacks.
+*/
+@layer utilities {
+  .font-script {
+    font-family: 'Caveat', cursive;
+  }
+  .font-body {
+    font-family: 'Nunito', system-ui, sans-serif;
+  }
+
+  /* Fade transition for TypewriterHeadline (Hero.tsx) — duration must match
+     TYPEWRITER_FADE_MS in useTypewriter.ts, which times the phrase swap to
+     when this transition finishes. */
+  .typewriter-fade {
+    transition: opacity 500ms ease;
+  }
+
+  /* Blinking caret for TypewriterHeadline (Hero.tsx). Hidden entirely when
+     prefers-reduced-motion is set — see useTypewriter.ts, which skips the
+     typing animation itself in that case too. */
+  .typewriter-caret {
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    margin-left: 2px;
+    vertical-align: -0.15em;
+    background: currentColor;
+    animation: typewriter-caret-blink 1s step-end infinite;
+  }
+  @keyframes typewriter-caret-blink {
+    0%,
+    50% {
+      opacity: 1;
+    }
+    50.01%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  .bg-wash-blush {
+    background-color: #fbf8f3;
+    background-image:
+      radial-gradient(ellipse 60% 55% at 85% 10%, rgba(232, 136, 160, 0.32), transparent 70%),
+      radial-gradient(ellipse 50% 45% at 10% 90%, rgba(232, 136, 160, 0.22), transparent 70%),
+      radial-gradient(ellipse 45% 40% at 45% 40%, rgba(250, 232, 210, 0.5), transparent 75%);
+    background-blend-mode: multiply, multiply, normal;
+  }
+
+  .bg-wash-sage {
+    background-color: #fbf8f3;
+    background-image:
+      radial-gradient(ellipse 58% 50% at 12% 12%, rgba(143, 174, 134, 0.32), transparent 70%),
+      radial-gradient(ellipse 50% 45% at 92% 85%, rgba(143, 174, 134, 0.24), transparent 70%),
+      radial-gradient(ellipse 42% 38% at 55% 45%, rgba(250, 232, 210, 0.5), transparent 75%);
+    background-blend-mode: multiply, multiply, normal;
+  }
+
+  .bg-wash-blue {
+    background-color: #fbf8f3;
+    background-image:
+      radial-gradient(ellipse 58% 50% at 88% 15%, rgba(127, 179, 204, 0.32), transparent 70%),
+      radial-gradient(ellipse 48% 44% at 8% 88%, rgba(127, 179, 204, 0.24), transparent 70%),
+      radial-gradient(ellipse 42% 38% at 50% 50%, rgba(250, 232, 210, 0.5), transparent 75%);
+    background-blend-mode: multiply, multiply, normal;
+  }
+
+  .stationery-card {
+    background: #fffdf9;
+    border: 1px solid rgba(44, 72, 112, 0.14);
+    box-shadow: 0 12px 28px rgba(44, 72, 112, 0.14);
+  }
+
+  /*
+    FAQ accordion panels: grid-template-rows 0fr -> 1fr is the standard way to
+    animate a height that isn't known up front (the answer text length varies
+    per question) without JS measurement. The inner div's overflow-hidden is
+    what actually clips the collapsed content; this element only drives the
+    height transition.
+  */
+  .faq-panel {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.35s ease;
+  }
+  .faq-panel.is-open {
+    grid-template-rows: 1fr;
+  }
+  .faq-panel > div {
+    overflow: hidden;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .faq-panel {
+      transition: none;
+    }
+  }
+}

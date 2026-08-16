@@ -54,49 +54,51 @@ export function SubscriptionTiers() {
   const ctaTo = user ? '/subscription' : '/register'
 
   return (
-    <section id="pricing" className="mx-auto max-w-5xl px-4 py-20">
+    <section id="pricing" className="bg-[#FFFDF9] px-4 py-20">
       <div className="mx-auto mb-4 max-w-2xl text-center">
-        <h2 className="text-3xl font-bold tracking-tight text-slate-900">
+        <h2 className="font-body text-3xl font-extrabold tracking-tight text-[#2C4870] sm:text-4xl">
           Membership gets you into the circle
         </h2>
-        <p className="mt-4 text-slate-600">
+        <p className="font-body mt-4 text-[15px] leading-relaxed text-[#4B5A73]">
           A subscription is what places you in a private support circle with a peer lead looking
           out for you. Pick the level of support that fits — change your mind whenever.
         </p>
       </div>
 
-      <div className="mt-12 grid gap-6 sm:grid-cols-3">
+      <div className="mx-auto mt-12 grid max-w-5xl gap-6 pt-3 sm:grid-cols-3">
         {TIERS.map((tier) => (
           <div
             key={tier.name}
             className={
               tier.highlighted
-                ? 'relative flex flex-col rounded-2xl border-2 border-slate-900 bg-slate-900 p-6 text-white shadow-xl sm:-my-4 sm:py-10'
-                : 'flex flex-col rounded-2xl border border-slate-200 bg-white p-6'
+                ? 'relative flex flex-col rounded-2xl bg-[#2C4870] p-6 text-[#FFFDF9] shadow-[0_16px_32px_rgba(44,72,112,0.3)] sm:-my-3 sm:py-9'
+                : 'stationery-card flex flex-col rounded-2xl p-6'
             }
           >
             {tier.highlighted && (
-              <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-amber-400 px-3 py-1 text-xs font-semibold text-slate-900">
-                Best value
+              <span className="font-body absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[#E888A0] px-3 py-1 text-xs font-bold text-[#2C4870] shadow-sm">
+                Most picked
               </span>
             )}
-            <h3 className={`text-lg font-semibold ${tier.highlighted ? 'text-white' : 'text-slate-900'}`}>
+            <h3
+              className={`font-body text-lg font-bold ${tier.highlighted ? 'text-[#FFFDF9]' : 'text-[#2C4870]'}`}
+            >
               {tier.name}
             </h3>
-            <p className={`mt-1 text-sm ${tier.highlighted ? 'text-slate-300' : 'text-slate-500'}`}>
+            <p className={`font-body mt-1 text-sm ${tier.highlighted ? 'text-[#FFFDF9]/75' : 'text-[#4B5A73]'}`}>
               {tier.tagline}
             </p>
-            <p className="mt-4 flex items-baseline gap-1">
-              <span className="text-3xl font-bold">{tier.price}</span>
-              <span className={tier.highlighted ? 'text-slate-300' : 'text-slate-500'}>/mo</span>
+            <p className="font-body mt-4 flex items-baseline gap-1">
+              <span className="text-3xl font-extrabold">{tier.price}</span>
+              <span className={tier.highlighted ? 'text-[#FFFDF9]/75' : 'text-[#4B5A73]'}>/mo</span>
             </p>
-            <ul className="mt-6 flex-1 space-y-2.5">
+            <ul className="font-body mt-6 flex-1 space-y-2.5">
               {tier.features.map((feature) => (
                 <li key={feature} className="flex items-start gap-2 text-sm">
                   <CheckIcon
-                    className={`mt-0.5 h-4 w-4 shrink-0 ${tier.highlighted ? 'text-amber-400' : 'text-emerald-600'}`}
+                    className={`mt-0.5 h-4 w-4 shrink-0 ${tier.highlighted ? 'text-[#E888A0]' : 'text-[#2C4870]'}`}
                   />
-                  <span className={tier.highlighted ? 'text-slate-200' : 'text-slate-600'}>
+                  <span className={tier.highlighted ? 'text-[#FFFDF9]/90' : 'text-[#4B5A73]'}>
                     {feature}
                   </span>
                 </li>
@@ -106,8 +108,8 @@ export function SubscriptionTiers() {
               to={ctaTo}
               className={
                 tier.highlighted
-                  ? 'mt-8 block rounded-lg bg-white px-4 py-2.5 text-center text-sm font-semibold text-slate-900 hover:bg-slate-100'
-                  : 'mt-8 block rounded-lg border border-slate-300 px-4 py-2.5 text-center text-sm font-semibold text-slate-900 hover:bg-slate-50'
+                  ? 'font-body mt-8 block rounded-full bg-[#FFFDF9] px-4 py-2.5 text-center text-sm font-semibold text-[#2C4870] transition-transform hover:-translate-y-0.5'
+                  : 'font-body mt-8 block rounded-full bg-[#2C4870] px-4 py-2.5 text-center text-sm font-semibold text-[#FFFDF9] transition-transform hover:-translate-y-0.5'
               }
             >
               Get started
@@ -115,11 +117,11 @@ export function SubscriptionTiers() {
           </div>
         ))}
       </div>
-      <p className="mt-8 text-center text-xs text-slate-400">
+      <p className="font-body mx-auto mt-10 max-w-2xl text-center text-xs text-[#4B5A73]">
         Paid via PayMongo (currently in test mode) — 30 days per payment, cancel anytime from your
-        subscription page. Part of every membership helps fund a Goodie Box for a member who
-        can't yet afford one. Want a comfort box for yourself instead? Get a one-time{' '}
-        <Link to="/goodie-box" className="underline hover:text-slate-500">
+        subscription page. Part of every membership helps fund a Goodie Box for a member who can't
+        yet afford one. Want a comfort box for yourself instead? Get a one-time{' '}
+        <Link to="/goodie-box" className="underline hover:text-[#2C4870]">
           Goodie Box
         </Link>{' '}
         — no subscription needed.

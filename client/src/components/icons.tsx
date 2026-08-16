@@ -171,6 +171,24 @@ export function BookIcon({ className }: IconProps) {
   )
 }
 
+export function HomeIcon({ className }: IconProps) {
+  return (
+    <svg {...base} strokeWidth={1.5} className={className}>
+      <path d="M3 9.5 10 3l7 6.5" />
+      <path d="M5 8v8a1 1 0 0 0 1 1h3v-5h2v5h3a1 1 0 0 0 1-1V8" />
+    </svg>
+  )
+}
+
+export function GearIcon({ className }: IconProps) {
+  return (
+    <svg {...base} strokeWidth={1.5} className={className}>
+      <circle cx="10" cy="10" r="3" />
+      <path d="M10 3.5v2M10 14.5v2M16.5 10h-2M5.5 10h-2M14.9 5.1l-1.4 1.4M6.5 13.5l-1.4 1.4M14.9 14.9l-1.4-1.4M6.5 6.5 5.1 5.1" />
+    </svg>
+  )
+}
+
 export function GripIcon({ className }: IconProps) {
   return (
     <svg viewBox="0 0 20 20" fill="currentColor" className={className}>
