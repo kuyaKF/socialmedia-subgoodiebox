@@ -28,3 +28,7 @@ export async function createCommentRequest(
   })
   return data.comment
 }
+
+export async function deleteCommentRequest(commentId: string) {
+  await apiClient.delete(`/engagement/comments/${commentId}`)
+}

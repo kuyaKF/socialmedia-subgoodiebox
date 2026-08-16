@@ -1,5 +1,10 @@
 import { Router } from 'express';
-import { createComment, listComments, toggleLike } from '../controllers/engagement.controller';
+import {
+  createComment,
+  deleteComment,
+  listComments,
+  toggleLike,
+} from '../controllers/engagement.controller';
 import { requireAuth } from '../middleware/auth';
 
 const router = Router();
@@ -11,5 +16,6 @@ router.use(requireAuth);
 
 router.post('/likes/toggle', toggleLike);
 router.post('/comments', createComment);
+router.delete('/comments/:id', deleteComment);
 
 export default router;

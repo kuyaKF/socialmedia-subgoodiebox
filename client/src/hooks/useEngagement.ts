@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react'
-import { createCommentRequest, listCommentsRequest, toggleLikeRequest } from '../api/engagement.api'
+import {
+  createCommentRequest,
+  deleteCommentRequest,
+  listCommentsRequest,
+  toggleLikeRequest,
+} from '../api/engagement.api'
 import type { FeedComment, FeedTargetType } from '../types/models'
 
 export function useEngagement(
@@ -48,6 +53,12 @@ export function useEngagement(
     return comment
   }
 
+  async function deleteComment(commentId: string) {
+    await deleteCommentRequest(commentId)
+    setComments((prev) => (prev ?? []).filter((c) => c._id !== commentId))
+    setCommentCount((c) => Math.max(0, c - 1))
+  }
+
   return {
     liked,
     likeCount,
@@ -57,5 +68,6 @@ export function useEngagement(
     toggleLike,
     loadComments,
     addComment,
+    deleteComment,
   }
 }

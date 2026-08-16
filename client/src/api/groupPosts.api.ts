@@ -9,6 +9,13 @@ export async function createGroupPostRequest(
   await apiClient.post('/group-posts', { groupId, body, visibility })
 }
 
+export async function updateGroupPostRequest(id: string, body: string) {
+  const { data } = await apiClient.patch<{ post: { body: string } }>(`/group-posts/${id}`, {
+    body,
+  })
+  return data.post
+}
+
 export async function deleteGroupPostRequest(id: string) {
   await apiClient.delete(`/group-posts/${id}`)
 }

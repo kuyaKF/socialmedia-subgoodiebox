@@ -99,3 +99,17 @@ export const createComment = asyncHandler(async (req: Request, res: Response) =>
   const populated = await comment.populate('author', 'name role avatarUrl');
   res.status(201).json({ comment: populated });
 });
+
+export const deleteComment = asyncHandler(async (req: Request, res: Response) => {
+  const comment = await Comment.findById(req.params.id);
+  if (!comment) {
+    throw new HttpError(404, 'Comment not found');
+  }
+  const isAuthor = String(comment.author) === req.user!.id;
+  const isAdmin = req.user!.role === 'admin';
+  if (!isAuthor && !isAdmin) {
+    throw new HttpError(403, 'Not allowed to delete this comment');
+  }
+  await comment.deleteOne();
+  res.status(204).send();
+});

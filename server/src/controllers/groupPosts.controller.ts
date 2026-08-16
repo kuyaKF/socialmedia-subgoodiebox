@@ -115,6 +115,29 @@ export const getGroupFeed = asyncHandler(async (req: Request, res: Response) => 
   res.json({ items, nextCursor });
 });
 
+export const updateGroupPost = asyncHandler(async (req: Request, res: Response) => {
+  const { body } = req.body as { body?: string };
+  if (!body || !body.trim()) {
+    throw new HttpError(400, 'body is required');
+  }
+  const post = await GroupPost.findById(req.params.id);
+  if (!post) {
+    throw new HttpError(404, 'Post not found');
+  }
+  const isAuthor = String(post.author) === req.user!.id;
+  const isAdmin = req.user!.role === 'admin';
+  if (!isAuthor && !isAdmin) {
+    throw new HttpError(403, 'Not allowed to edit this post');
+  }
+  post.body = body.trim();
+  await post.save();
+  const populated = await post.populate([
+    { path: 'author', select: 'name role' },
+    { path: 'group', select: 'name' },
+  ]);
+  res.json({ post: populated });
+});
+
 export const deleteGroupPost = asyncHandler(async (req: Request, res: Response) => {
   const post = await GroupPost.findById(req.params.id);
   if (!post) {

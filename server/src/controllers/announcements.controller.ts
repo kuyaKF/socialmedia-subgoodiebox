@@ -13,6 +13,21 @@ export const createAnnouncement = asyncHandler(async (req: Request, res: Respons
   res.status(201).json({ announcement: populated });
 });
 
+export const updateAnnouncement = asyncHandler(async (req: Request, res: Response) => {
+  const { body } = req.body as { body?: string };
+  if (!body || !body.trim()) {
+    throw new HttpError(400, 'body is required');
+  }
+  const announcement = await Announcement.findById(req.params.id);
+  if (!announcement) {
+    throw new HttpError(404, 'Announcement not found');
+  }
+  announcement.body = body.trim();
+  await announcement.save();
+  const populated = await announcement.populate('author', 'name role avatarUrl');
+  res.json({ announcement: populated });
+});
+
 export const deleteAnnouncement = asyncHandler(async (req: Request, res: Response) => {
   const announcement = await Announcement.findById(req.params.id);
   if (!announcement) {
