@@ -13,6 +13,7 @@ export interface GroupRef {
   _id: string
   name: string
   leader?: string | null
+  members: string[]
 }
 
 export interface User {

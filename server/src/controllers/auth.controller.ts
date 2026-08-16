@@ -27,6 +27,7 @@ function publicUser(user: InstanceType<typeof User>) {
     group: user.group,
     subscription: user.subscription,
     emailVerified: user.emailVerified,
+    createdAt: user.get('createdAt'),
   };
 }
 
